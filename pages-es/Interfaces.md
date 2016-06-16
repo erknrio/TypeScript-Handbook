@@ -26,19 +26,15 @@ let myObj = {size: 10, etiqueta: "Size 10 Object"};
 imprimirEtiqueta(myObj);
 ```
 
-The type-checker checks the call to `imprimirEtiqueta`.
-The `imprimirEtiqueta` function has a single parameter that requires that the object passed in has a property called `etiqueta` of type string.
-Notice that our object actually has more properties than this, but the compiler only checks that *at least* the ones required are present and match the types required.
-There are some cases where TypeScript isn't as lenient, which we'll cover in a bit.
-
-We can write the same example again, this time using an interface to describe the requirement of having the `etiqueta` property that is a string:
+Como veremos también en el ejemplo a continuación en el que usaremos una interfaz, la función `imprimirEtiqueta` recibe un objeto con la propiedad `etiqueta` de tipo `string`.
+No importa el orden de las propiedades del objeto recibido ni si existen más propiedades en dicho objeto, solamente importa se comprueba que la propiedad requerida `etiqueta` se encuentre en el objeto recibido y sea del tipo establecido.
 
 ```ts
-interface LabelledValue {
+interface valorEtiquetado {
     etiqueta: string;
 }
 
-function imprimirEtiqueta(etiquetaObj: LabelledValue) {
+function imprimirEtiqueta(etiquetaObj: valorEtiquetado) {
     console.log(etiquetaObj.etiqueta);
 }
 
@@ -46,188 +42,133 @@ let myObj = {size: 10, etiqueta: "Size 10 Object"};
 imprimirEtiqueta(myObj);
 ```
 
-The interface `LabelledValue` is a name we can now use to describe the requirement in the previous example.
-It still represents having a single property called `etiqueta` that is of type string.
-Notice we didn't have to explicitly say that the object we pass to `imprimirEtiqueta` implements this interface like we might have to in other languages.
-Here, it's only the shape that matters. If the object we pass to the function meets the requirements listed, then it's allowed.
-
-It's worth pointing out that the type-checker does not require that these properties come in any sort of order, only that the properties the interface requires are present and have the required type.
-
 # Optional Properties
 
-Not all properties of an interface may be required.
-Some exist under certain conditions or may not be there at all.
-These optional properties are popular when creating patterns like "option bags" where you pass an object to a function that only has a couple of properties filled in.
-
-Here's an example of this pattern:
+No todas las propiedades de una interfaz son requeridos.
+Pueden darse situaciones en las que sólo se necesiten algunas propiedades.
+Pongamos un ejemplo:
 
 ```ts
-interface SquareConfig {
+interface CuadradoConfig {
     color?: string;
     width?: number;
 }
 
-function createSquare(config: SquareConfig): {color: string; area: number} {
-    let newSquare = {color: "white", area: 100};
+function crearCuadrado(config: CuadradoConfig): {color: string; area: number} {
+    let nuevoCuadrado = {color: "white", area: 100};
     if (config.color) {
-        newSquare.color = config.color;
+        nuevoCuadrado.color = config.color;
     }
     if (config.width) {
-        newSquare.area = config.width * config.width;
+        nuevoCuadrado.area = config.width * config.width;
     }
-    return newSquare;
+    return nuevoCuadrado;
 }
 
-let mySquare = createSquare({color: "black"});
+let miCuadrado = crearCuadrado({color: "negro"});
 ```
 
-Interfaces with optional properties are written similar to other interfaces, with each optional property denoted by a `?` at the end of the property name in the declaration.
+Las interfaces con propiedades opcionales se escriben con un `?` al final del nombre de la propiedad, en la declaración.
 
-The advantage of optional properties is that you can describe these possibly available properties while still also preventing use of properties that are not part of the interface.
-For example, had we mistyped the name of the `color` property in `createSquare`, we would get an error message letting us know:
+Una ventaja de las propiedades opcionales es que previene el uso de propiedades que no existen en la interfaz.
+Por ejemplo, nos equivocamos al escribir `color` en `crearCuadrado` y obtenemos un mensaje de error:
 
 ```ts
-interface SquareConfig {
+interface CuadradoConfig {
     color?: string;
     width?: number;
 }
 
-function createSquare(config: SquareConfig): { color: string; area: number } {
-    let newSquare = {color: "white", area: 100};
+function crearCuadrado(config: CuadradoConfig): { color: string; area: number } {
+    let nuevoCuadrado = {color: "white", area: 100};
     if (config.color) {
-        // Error: Property 'collor' does not exist on type 'SquareConfig'
-        newSquare.color = config.collor;
+        // Error: Property 'collor' does not exist on type 'CuadradoConfig'
+        // Error: Propiedad 'collor' no existe en el tipo 'CuadradoConfig'
+        nuevoCuadrado.color = config.collor;
     }
     if (config.width) {
-        newSquare.area = config.width * config.width;
+        nuevoCuadrado.area = config.width * config.width;
     }
-    return newSquare;
+    return nuevoCuadrado;
 }
 
-let mySquare = createSquare({color: "black"});
+let miCuadrado = crearCuadrado({color: "negro"});
 ```
 
-# Excess Property Checks
+# Exceso de comprobaciones en las propiedades
 
-In our first example using interfaces, TypeScript let us pass `{ size: number; etiqueta: string; }` to something that only expected a `{ etiqueta: string; }`.
-We also just learned about optional properties, and how they're useful when describing so-called "option bags".
-
-However, combining the two naively would let you to shoot yourself in the foot the same way you might in JavaScript.
-For example, taking our last example using `createSquare`:
+Vayamos directos a un ejemplo.
 
 ```ts
-interface SquareConfig {
+interface CuadradoConfig {
     color?: string;
     width?: number;
 }
 
-function createSquare(config: SquareConfig): { color: string; area: number } {
+function crearCuadrado(config: CuadradoConfig): { color: string; area: number } {
     // ...
 }
 
-let mySquare = createSquare({ colour: "red", width: 100 });
+let miCuadrado = crearCuadrado({ colour: "red", width: 100 });
 ```
 
-Notice the given argument to `createSquare` is spelled *`colour`* instead of `color`.
-In plain JavaScript, this sort of thing fails silently.
+En el siguiente ejemplo vemos como, por error, en `crearCuadrado` hemos introducido la propiedad *`colour`* en lugar de `color`.
+En JavaScript no obtendríamos un error ya que la propiedad `width` sí existe en `CuadradoConfig` pero en TypeScript obtendremos un error advirtiendo que podríamos habernos equivocado.
 
-You could argue that this program is correctly typed, since the `width` properties are compatible, there's no `color` property present, and the extra `colour` property is insignificant.
-
-However, TypeScript takes the stance that there's probably a bug in this code.
-Object literals get special treatment and undergo *excess property checking* when assigning them to other variables, or passing them as arguments.
-If an object literal has any properties that the "target type" doesn't have, you'll get an error.
+Por lógica, no deberíamos pasar a una función más parámetros de los necesarios, por este motivo se hace un *exceso de comprobaciones en las propiedades* cuando se asignan objetos literales a otras variables o se pasan como argumentos.
 
 ```ts
-// error: 'colour' not expected in type 'SquareConfig'
-let mySquare = createSquare({ colour: "red", width: 100 });
+// error: 'colour' not expected in type 'CuadradoConfig'
+let miCuadrado = crearCuadrado({ colour: "red", width: 100 });
 ```
 
-Getting around these checks is actually really simple.
-The easiest method is to just use a type assertion:
+Para evitarlo podemos usar una [type assertion](Basic Types.md).
 
 ```ts
-let mySquare = createSquare({ width: 100, opacity: 0.5 } as SquareConfig);
+let miCuadrado = crearCuadrado({ width: 100, opacity: 0.5 } as CuadradoConfig);
 ```
 
-However, a better approach might be to add a string index signature if you're sure that the object can have some extra properties that are used in some special way.
-If `SquareConfig`s can have `color` and `width` properties with the above types, but could *also* have any number of other properties, then we could define it like so:
+Sin embargo, una forma mejor de actuar sería establecer en la interfaz `CuadradoConfig` que puede haber propiedades extra:
 
 ```ts
-interface SquareConfig {
+interface CuadradoConfig {
     color?: string;
     width?: number;
     [propName: string]: any;
 }
 ```
 
-We'll discuss index signatures in a bit, but here we're saying a `SquareConfig` can have any number of properties, and as long as they aren't `color` or `width`, their types don't matter.
+Más adelante veremos este de propiedades pero estamos diciendo que `CuadradoConfig` puede tener un *número indeterminado* de propiedades que no sean `color` ni `width` y de cualquier tipo.
 
-One final way to get around these checks, which might be a bit surprising, is to assign the object to another variable:
-Since `squareOptions` won't undergo excess property checks, the compiler won't give you an error.
+Una última aproximación al problema es guardar el objeto dentro de otra variable ya que en este caso no se raliza *exceso de comprobaciones en las propiedades*:
 
 ```ts
-let squareOptions = { colour: "red", width: 100 };
-let mySquare = createSquare(squareOptions);
+let opcionesCuadrado = { colour: "red", width: 100 };
+let miCuadrado = crearCuadrado(opcionesCuadrado);
 ```
 
-Keep in mind that for simple code like above, you probably shouldn't be trying to "get around" these checks.
-For more complex object literals that have methods and hold state, you might need to keep these techniques in mind, but a majority of excess property errors are actually bugs.
-That means if you're running into excess property checking problems for something like option bags, you might need to revise some of your type declarations.
-In this instance, if it's okay to pass an object with both a `color` or `colour` property to `createSquare`, you should fix up the definition of `SquareConfig` to reflect that.
+Tenga cuidado porque aunque estos ejemplos "parchean" el problema no dejan de ser bugs que deberían ser revisados.
 
-# Function Types
+# Tipos de funciones
 
-Interfaces are capable of describing the wide range of shapes that JavaScript objects can take.
-In addition to describing an object with properties, interfaces are also capable of describing function types.
-
-To describe a function type with an interface, we give the interface a call signature.
-This is like a function declaration with only the parameter list and return type given. Each parameter in the parameter list requires both name and type.
+Las interfaces son capaces de describir los tipos de una función.
+Esto implica la lista de parámetros y retorna el tipo. Es requerido nombre y tipo para cada parámetro:
 
 ```ts
-interface SearchFunc {
-    (source: string, subString: string): boolean;
+interface BuscarFunc {
+    (fuente: string, subString: string): boolean;
 }
 ```
 
-Once defined, we can use this function type interface like we would other interfaces.
-Here, we show how you can create a variable of a function type and assign it a function value of the same type.
+Una vez definido podemos usar esta interfaz para definir los parámetros de una función.
+
+Los parámetros se comprueban uno a uno según su orden y tipo. Podemos usar diferentes nombres para los parámetros de la función que vamos a implementar así como no espeficiar los tipos.
+Estos tipos se tomarán directamente de `BuscarFunc` incluído el retorno de la función.
+
+Veamos un ejemplo:
 
 ```ts
-let mySearch: SearchFunc;
-mySearch = function(source: string, subString: string) {
-    let result = source.search(subString);
-    if (result == -1) {
-        return false;
-    }
-    else {
-        return true;
-    }
-}
-```
-
-For function types to correctly type-check, the names of the parameters do not need to match.
-We could have, for example, written the above example like this:
-
-```ts
-let mySearch: SearchFunc;
-mySearch = function(src: string, sub: string): boolean {
-    let result = src.search(sub);
-    if (result == -1) {
-        return false;
-    }
-    else {
-        return true;
-    }
-}
-```
-
-Function parameters are checked one at a time, with the type in each corresponding parameter position checked against each other.
-If you do not want to specify types at all, Typescript's contextual typing can infer the argument types since the function value is assigned directly to a variable of type `SearchFunc`.
-Here, also, the return type of our function expression is implied by the values it returns (here `false` and `true`).
-Had the function expression returned numbers or strings, the type-checker would have warned us that return type doesn't match the return type described in the `SearchFunc` interface.
-
-```ts
-let mySearch: SearchFunc;
+let mySearch: BuscarFunc;
 mySearch = function(src, sub) {
     let result = src.search(sub);
     if (result == -1) {
@@ -239,10 +180,14 @@ mySearch = function(src, sub) {
 }
 ```
 
-# Indexable Types
+Como podemos comprobar tomamos los tipos de los parámetros de `BuscarFunc`, que serán string.
+Al realizarse una comprobación por orden los nombres de los parámetros se pueden cambiar mientras coincidan sus tipos (pruebe a cambiar `src` a `src:number` y obtendrá un error).
+También tomamos el tipo de retorno de la función de `BuscarFunc` que será de tipo boolean (`true` y `false`).
 
-Similarly to how we can use interfaces to describe function types, we can also describe types that we can "index into" like `a[10]`, or `ageMap["daniel"]`.
-Indexable types have an *index signature* that describes the types we can use to index into the object, along with the corresponding return types when indexing.
+# Tipos indexables
+
+Podeos describir tipos en los que podemos indexar como `a[10]`, or `mapaEdad["daniel"]`.
+Los tipos indexables tienen un *índice de firma (index signature)* que describe los tipos que podemos usar para indexar dentro de un objecto junto con su correspondiente tipo cuando es indexado.
 Let's take an example:
 
 ```ts
@@ -256,152 +201,131 @@ myArray = ["Bob", "Fred"];
 let myStr: string = myArray[0];
 ```
 
-Above, we have a `StringArray` interface that has an index signature.
-This index signature states that when a `StringArray` is indexed with a `number`, it will return a `string`.
+En el ejemplo superior, la interfaz `StringArray` tiene un índice de firma.
+`StringArray` es indexado con un `number` y devuelve un `string`.
 
-There are two types of supported index signatures: string and number.
-It is possible to support both types of indexers, but the type returned from a numeric indexer must be a subtype of the type returned from the string indexer.
-This is because when indexing with a `number`, JavaScript will actually convert that to a `string` before indexing into an object.
-That means that indexing with `100` (a `number`) is the same thing as indexing with `"100"` (a `string`), so the two need to be consistent.
+Hay dos tipos de índices soportados: string y number.
+Es posible usar ambos índices, pero el tipo retornado desde un indexador numérico debe ser un subtipo del tipo retornado por un indexador de cadena.
+Esto pasa porque cuando indexamos con un `number`, JavaScript lo convierte a `string` antes de indexarlo en un objeto.
+Eso significa que `100` (un `number`) es lo mismo que indexar con `"100"` (un `string`), estos dos deben ser consistentes.
 
 ```ts
 class Animal {
     name: string;
 }
-class Dog extends Animal {
+class Perro extends Animal {
     breed: string;
 }
 
-// Error: indexing with a 'string' will sometimes get you a Dog!
+// Error: indexando con un 'string' algunas veces te dara un Perro!
 interface NotOkay {
     [x: number]: Animal;
-    [x: string]: Dog;
+    [x: string]: Perro;
 }
 ```
 
-While string index signatures are a powerful way to describe the "dictionary" pattern, they also enforce that all properties match their return type.
-This is because a string index declares that `obj.property` is also available as `obj["property"]`.
-In the following example, `name`'s type does not match the string index's type, and the type-checker gives an error:
+Mientras que los índices de firma son un método poderoso para describir el patrón de un "diccionario" (objeto), también fuerza a todas las propiedades de este a coincidir en su tipo retornado.
+Esto es porque los índices de cadena declaran que `obj.property` está también disponible como `obj["property"]`.
+En el siguiente ejemplo `nombre` (string) no coindice con el tipo del índice (number) y el comprobador de tipos devuelve un error:
 
 ```ts
-interface NumberDictionary {
+interface DiccionarioNumero {
     [index: string]: number;
-    length: number;    // ok, length is a number
-    name: string;      // error, the type of 'name' is not a subtype of the indexer
+    length: number;    // ok, length es un number
+    nombre: string;      // error, el tipo de 'name' (string) no es un subtipo del indexador (number)
 }
 ```
 
-# Class Types
+# Tipos de clase
 
-## Implementing an interface
+## Implementando una interfaz
 
-One of the most common uses of interfaces in languages like C# and Java, that of explicitly enforcing that a class meets a particular contract, is also possible in TypeScript.
+Uno de los usos más comunes de las interfaces en C# y Java, es que fuerzan a la clase a implementar una declaración concreta.
+Es posible hacerlo en TypeScript pero solamente con la parte pública de la clase.
 
 ```ts
-interface ClockInterface {
-    currentTime: Date;
+interface RelojInterfaz {
+    horaActual: Date;
 }
 
-class Clock implements ClockInterface {
-    currentTime: Date;
+class Reloj implements RelojInterfaz {
+    horaActual: Date;
     constructor(h: number, m: number) { }
 }
 ```
 
-You can also describe methods in an interface that are implemented in the class, as we do with `setTime` in the below example:
+También podemos describir métodos en la interfaz que serán implementados en la clase, como `setTime` en el siguiente ejemplo:
 
 ```ts
-interface ClockInterface {
-    currentTime: Date;
+interface RelojInterfaz {
+    horaActual: Date;
     setTime(d: Date);
 }
 
-class Clock implements ClockInterface {
-    currentTime: Date;
+class Reloj implements RelojInterfaz {
+    horaActual: Date;
     setTime(d: Date) {
-        this.currentTime = d;
+        this.horaActual = d;
     }
     constructor(h: number, m: number) { }
 }
 ```
 
-Interfaces describe the public side of the class, rather than both the public and private side.
-This prohibits you from using them to check that a class also has particular types for the private side of the class instance.
+## Diferencias entre la parte estática y la instacia de las clases
 
-## Difference between the static and instance sides of classes
-
-When working with classes and interfaces, it helps to keep in mind that a class has *two* types: the type of the static side and the type of the instance side.
-You may notice that if you create an interface with a construct signature and try to create a class that implements this interface you get an error:
+No se puede crear directamente una clase que implemente una interfaz con un constructor, devolverá error:
 
 ```ts
-interface ClockConstructor {
+interface ConstructorReloj {
     new (hour: number, minute: number);
 }
 
-class Clock implements ClockConstructor {
-    currentTime: Date;
+class Reloj implements ConstructorReloj {
+    horaActual: Date;
     constructor(h: number, m: number) { }
 }
 ```
 
-This is because when a class implements an interface, only the instance side of the class is checked.
-Since the constructor sits in the static side, it is not included in this check.
+Este error es causado porque solamente se comprueba la parte de la instacia de una clase, el constructor, al formar parte de la parte estática no se comprueba.
 
-Instead, you would need to work with the static side of the class directly.
-In this example, we define two interfaces, `ClockConstructor` for the constructor and `ClockInterface` for the instance methods.
-Then for convenience we define a constructor function `createClock` that creates instances of the type that is passed to it.
+En su lugar tendrá que trabajar con la parte estática directamente.
+En este ejemplo definimos dos interfaces: `ConstructorReloj` para el constructor y `RelojInterfaz` para los métodos de la instancia.
+Por comodidad definimos una función para el constructor `crearReloj` que crea una instancia del tipo que se le pase.
 
 ```ts
-interface ClockConstructor {
-    new (hour: number, minute: number): ClockInterface;
+interface ConstructorReloj {
+    new (hour: number, minute: number): RelojInterfaz;
 }
-interface ClockInterface {
+interface RelojInterfaz {
     tick();
 }
 
-function createClock(ctor: ClockConstructor, hour: number, minute: number): ClockInterface {
+function crearReloj(ctor: ConstructorReloj, hour: number, minute: number): RelojInterfaz {
     return new ctor(hour, minute);
 }
 
-class DigitalClock implements ClockInterface {
+class RelojDigital implements RelojInterfaz {
     constructor(h: number, m: number) { }
     tick() {
         console.log("beep beep");
     }
 }
-class AnalogClock implements ClockInterface {
+class RelojAnalog implements RelojInterfaz {
     constructor(h: number, m: number) { }
     tick() {
         console.log("tick tock");
     }
 }
 
-let digital = createClock(DigitalClock, 12, 17);
-let analog = createClock(AnalogClock, 7, 32);
+let digital = crearReloj(RelojDigital, 12, 17);
+let analog = crearReloj(RelojAnalog, 7, 32);
 ```
 
-Because `createClock`'s first parameter is of type `ClockConstructor`, in `createClock(AnalogClock, 7, 32)`, it checks that `AnalogClock` has the correct constructor signature.
+Debido a que el primer parametro de `crearReloj` es de tipo `ConstructorReloj`, en `crearReloj(RelojAnalog, 7, 32)`, comprueba que `RelojAnalog` tiene la correcta firma de constructor (constructor signature).
 
-# Extending Interfaces
+# Extendiendo interfaces
 
-Like classes, interfaces can extend each other.
-This allows you to copy the members of one interface into another, which gives you more flexibility in how you separate your interfaces into reusable components.
-
-```ts
-interface Shape {
-    color: string;
-}
-
-interface Square extends Shape {
-    sideLength: number;
-}
-
-let square = <Square>{};
-square.color = "blue";
-square.sideLength = 10;
-```
-
-An interface can extend multiple interfaces, creating a combination of all of the interfaces.
+Las interfaces se pueden extender de forma múltiple creando combinaciones.
 
 ```ts
 interface Shape {
@@ -422,12 +346,10 @@ square.sideLength = 10;
 square.penWidth = 5.0;
 ```
 
-# Hybrid Types
+# Tipos híbridos
 
-As we mentioned earlier, interfaces can describe the rich types present in real world JavaScript.
-Because of JavaScript's dynamic and flexible nature, you may occasionally encounter an object that works as a combination of some of the types described above.
-
-One such example is an object that acts as both a function and an object, with additional properties:
+En JavaScript a veces encontramos objetos que actúan como una combinación de los tipos que hemos visto anteriormente.
+Veamos un nuevo ejemplo de un objeto que actúa como tal y como una función con propiedades adicionales:
 
 ```ts
 interface Counter {
@@ -449,16 +371,14 @@ c.reset();
 c.interval = 5.0;
 ```
 
-When interacting with 3rd-party JavaScript, you may need to use patterns like the above to fully describe the shape of the type.
+Cuando interactúa con JavaScript de terceras partes, tal vez necesite patrones como el anterior que decriban la forma del tipo.
 
-# Interfaces Extending Classes
+# Interfaces que extienden clases
 
-When an interface type extends a class type it inherits the members of the class but not their implementations.
-It is as if the interface had declared all of the members of the class without providing an implementation.
-Interfaces inherit even the private and protected members of a base class.
-This means that when you create an interface that extends a class with private or protected members, that interface type can only be implemented by that class or a subclass of it.
+Cuando una interfaz extiende un tipo clase, hereda los miembros, incluídos los protegidos y privados de la clase pero no sus implementaciones.
+Esto implica que, al tener elementos privados y protegidos, esta interfaz solamente puede ser implementada por clases o subclases de esta.
 
-This is useful when you have a large inheritance hierarchy, but want to specify that your code works with only subclasses that have certain properties.
+Es útil cuando tiene largas herencias y quiere especificar que el código trabaja sólo con subclases que tienen ciertas propiedades.
 The subclasses don't have to be related besides inheriting from the base class.
 For example:
 
@@ -487,10 +407,12 @@ class Location {
 }
 ```
 
-In the above example, `SelectableControl` contains all of the members of `Control`, including the private `state` property.
-Since `state` is a private member it is only possible for descendants of `Control` to implement `SelectableControl`.
-This is because only descendants of `Control` will have a `state` private member that originates in the same declaration, which is a requirement for private members to be compatible.
+En el ejemplo superior, `SelectableControl` contiene todos los miembros de `Control`incluyendo la propiedad privada `state`.
 
-Within the `Control` class it is possible to access the `state` private member through an instance of `SelectableControl`.
-Effectively, a `SelectableControl` acts like a `Control` that is known to have a `select` method.
-The `Button` and `TextBox` classes are subtypes of `SelectableControl` (because they both inherit from `Control` and have a `select` method), but the `Image` and `Location` classes are not.
+Como `state` es un elemento privado, solamente los descendiente de `Control` pueden implementar `SelectableControl`.
+Esto es debido a que los descendientes de `Control` serán los únicos que posean el elemento privado  `state`.
+
+Dentro de la clase `Control` es posible acceder al elemento privado `state` mediante una instancia de `SelectableControl`.
+`SelectableControl` actúa como `Control` que es conocido que tiene el método `select`.
+
+Las clases `Button` y `TextBox` son subtipos de `SelectableControl` (porque ambos heredan de `Control` y tienen un método `select`), pero las clases `Image` y `Location`no.
