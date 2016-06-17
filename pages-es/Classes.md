@@ -1,328 +1,332 @@
-# Introduction
+# Introducción
 
-Traditional JavaScript focuses on functions and prototype-based inheritance as the basic means of building up reusable components, but this may feel a bit awkward to programmers more comfortable with an object-oriented approach, where classes inherit functionality and objects are built from these classes.
-Starting with ECMAScript 2015, also known as ECMAScript 6, JavaScript programmers will be able to build their applications using this object-oriented class-based approach.
-In TypeScript, we allow developers to use these techniques now, and compile them down to JavaScript that works across all major browsers and platforms, without having to wait for the next version of JavaScript.
+El JavaScript tradicional emplea funciones y propotipos (prototype) para construir componentes reusable, pero difiere de la implemtación que vemos en otros lenguajes como C# o Java.
+A partir de ECMAScript 2015, también conocido como ECMAScript 6 (ES6), existe la opción de crear aplicaciones orientadas a objetos (Programación Orientada a Objetos o por sus siglas `POO`) con un estilo basado en clases.
+En TypeScript se permiten estas técinas compilando en un JavaScript soportado por la mayoría de navegadores y plataformas sin que tengas que esperar a nuevas versiones de JavaScript.
 
 # Classes
 
-Let's take a look at a simple class-based example:
+Veamos un ejemplo básico basado en clases:
 
 ```ts
-class Greeter {
-    greeting: string;
+class Bienvenida {
+    saludo: string;
     constructor(message: string) {
-        this.greeting = message;
+        this.saludo = message;
     }
-    greet() {
-        return "Hello, " + this.greeting;
+    saludar() {
+        return "Hello, " + this.saludo;
     }
 }
 
-let greeter = new Greeter("world");
+let bienvenida = new Bienvenida("world");
 ```
 
-The syntax should look familiar if you've used C# or Java before.
-We declare a new class `Greeter`. This class has three members: a property called `greeting`, a constructor, and a method `greet`.
+Declaramos una clase `Bienvenida`.
+Esta clase tiene tres miembros: una propiedad llamada `saludo`, un constructor y un método `saludar`.
 
-You'll notice that in the class when we refer to one of the members of the class we prepend `this.`.
-This denotes that it's a member access.
+Dentro de la clase se habrá dado cuenta de que cuando nos referimos a un miembro de esta usamos `this`.
+Implica un acceso a un miembro.
 
-In the last line we construct an instance of the `Greeter` class using `new`.
-This calls into the constructor we defined earlier, creating a new object with the `Greeter` shape, and running the constructor to initialize it.
+En la última línea creamos una instancia de la clase `Bienvenida` usando `new`.
+Esto llama al constructor de la clase `Bienvenida` y la inicializa.
 
-# Inheritance
+# Herencia
 
-In TypeScript, we can use common object-oriented patterns.
-Of course, one of the most fundamental patterns in class-based programming is being able to extend existing classes to create new ones using inheritance.
-
-Let's take a look at an example:
+Una de los fundamentos de la POO basada en clases es la posiblidad de extender las clases existentes para crear nuevas usando herencia.
+Veamos un ejemplo:
 
 ```ts
 class Animal {
-    name: string;
-    constructor(theName: string) { this.name = theName; }
-    move(distanceInMeters: number = 0) {
-        console.log(`${this.name} moved ${distanceInMeters}m.`);
+    nombre: string;
+    constructor(elNombre: string) { this.nombre = elNombre; }
+    mover(distanciaEnMetros: number = 0) {
+        console.log(`${this.nombre} movió ${distanciaEnMetros}m.`);
     }
 }
 
-class Snake extends Animal {
-    constructor(name: string) { super(name); }
-    move(distanceInMeters = 5) {
-        console.log("Slithering...");
-        super.move(distanceInMeters);
+class Serpiente extends Animal {
+    constructor(nombre: string) { super(nombre); }
+    mover(distanciaEnMetros = 5) {
+        console.log("Deslizándose...");
+        super.mover(distanciaEnMetros);
     }
 }
 
-class Horse extends Animal {
-    constructor(name: string) { super(name); }
-    move(distanceInMeters = 45) {
-        console.log("Galloping...");
-        super.move(distanceInMeters);
+class Caballo extends Animal {
+    constructor(nombre: string) { super(nombre); }
+    mover(distanciaEnMetros = 45) {
+        console.log("Galopando...");
+        super.mover(distanciaEnMetros);
     }
 }
 
-let sam = new Snake("Sammy the Python");
-let tom: Animal = new Horse("Tommy the Palomino");
+let sam = new Serpiente("Sammy la Pitón");
+let tom: Animal = new Caballo("Tommy el Palomino");
 
-sam.move();
-tom.move(34);
+sam.mover();
+tom.mover(34);
 ```
 
-This example covers quite a few of the inheritance features in TypeScript that are common to other languages.
-Here we see the `extends` keywords used to create a subclass. You can see this where `Horse` and `Snake` subclass the base class `Animal` and gain access to its features.
+Este ejemplo cubre bastantes de las características de la herencia en TypeScript que son comunes a otros lenguajes.
+Vemos la palabra clave `extends` usada para crear la subclase.
+De esta forma las subclases `Caballo` y `Serpiente` obtienen acceso a las características de la clase `Animal`.
 
-Derived classes that contain constructor functions must call `super()` which will execute the constructor function on the base class.
+Las clases derivadas deben contener un constructor que llame a `super()` el que ejecutará el constructor de la clase padre.
+Derived classes that contain constructor functions must call  which will execute the constructor function on the base class.
 
-The example also shows how to override methods in the base class with methods that are specialized for the subclass.
-Here both `Snake` and `Horse` create a `move` method that overrides the `move` from `Animal`, giving it functionality specific to each class.
-Note that even though `tom` is declared as an `Animal`, since its value is a `Horse`, when `tom.move(34)` calls the overriding method in `Horse`:
+El ejemplo también muestra como sobreescribir métodos de la clase padre con otros más especializados de la subclase.
+Tanto `Serpiente` como `Caballo` sobreescriben el método `mover` de `Animal` dándole una funcionalidad específica para cada clase.
+Tenga en cuenta que a pesar de que `tom` es declarado como tipo `Animal` , su valor es un `Caballo`.
+Cuando `tom.mover(34)` llama al método sobreescrito en `Caballo`.
+
+El resultado:
 
 ```Text
-Slithering...
-Sammy the Python moved 5m.
-Galloping...
-Tommy the Palomino moved 34m.
+Deslizándose...
+Sammy la Pitón movió 5m.
+Galopando...
+Tommy el Palomino movió 34m.
 ```
 
-# Public, private, and protected modifiers
+# Modificadores público, protegido y privado (*public*, *protected*, *private*)
 
-## Public by default
+## Public por defecto
 
-In our examples, we've been able to freely access the members that we declared throughout our programs.
-If you're familiar with classes in other languages, you may have noticed in the above examples we haven't had to use the word `public` to accomplish this; for instance, C# requires that each member be explicitly labeled `public` to be visible.
-In TypeScript, each member is `public` by default.
-
-You may still mark a member `public` explicitly.
-We could have written the `Animal` class from the previous section in the following way:
+En TypeScript los miembros son públicos por defecto, en otros lenguajes como C# hay que marcarlos como `public` para que sean visibles.
+Podríamos haber escrito la clase `Animal` de la sección anterior de la siguiente manera:
 
 ```ts
 class Animal {
-    public name: string;
-    public constructor(theName: string) { this.name = theName; }
-    public move(distanceInMeters: number) {
-        console.log(`${this.name} moved ${distanceInMeters}m.`);
+    public nombre: string;
+    public constructor(elNombre: string) { this.nombre = elNombre; }
+    public mover(distanciaEnMetros: number) {
+        console.log(`${this.nombre} movió ${distanciaEnMetros}m.`);
     }
 }
 ```
 
-## Understanding `private`
+## Entendiendo `private`
 
-When a member is marked `private`, it cannot be accessed from outside of its containing class. For example:
+Cuando un miembro es marcado como `private`, no puede ser accedido desde fuera de la clase que lo contiene.
+Por ejemplo:
 
 ```ts
 class Animal {
-    private name: string;
-    constructor(theName: string) { this.name = theName; }
+    private nombre: string;
+    constructor(elNombre: string) { this.nombre = elNombre; }
 }
 
-new Animal("Cat").name; // Error: 'name' is private;
+new Animal("Gato").nombre; // Error: 'nombre' is private;
 ```
 
-TypeScript is a structural type system.
-When we compare two different types, regardless of where they came from, if the types of all members are compatible, then we say the types themselves are compatible.
+TypeScript es un sistema de tipo estructural.
+Cuando comparamos dos tipos diferentes, independientemente de donde vengan, si los tipos de todos los miembros de son compatibles, entonces podemos decir que son compatibles entre sí.
 
-However, when comparing types that have `private` and `protected` members, we treat these types differently.
-For two types to be considered compatible, if one of them has a `private` member, then the other must have a `private` member that originated in the same declaration.
-The same applies to `protected` members.
+Sin embargo, cuando comparamos miembros de tipo `private` y `protected`, los tratamos de forma diferente.
+Para que consideremos a los los tipos compatibles, ambos deben tener un miembro `private` originado en la misma declaración.
+Lo mismo pasa con los mirmbros `protected`.
 
-Let's look at an example to better see how this plays out in practice:
+Veamos un ejemplo para aclarar estos conceptos:
 
 ```ts
 class Animal {
-    private name: string;
-    constructor(theName: string) { this.name = theName; }
+    private nombre: string;
+    constructor(elNombre: string) { this.nombre = elNombre; }
 }
 
 class Rhino extends Animal {
     constructor() { super("Rhino"); }
 }
 
-class Employee {
-    private name: string;
-    constructor(theName: string) { this.name = theName; }
+class Empleado {
+    private nombre: string;
+    constructor(elNombre: string) { this.nombre = elNombre; }
 }
 
 let animal = new Animal("Goat");
 let rhino = new Rhino();
-let employee = new Employee("Bob");
+let empleado = new Empleado("Bob");
 
 animal = rhino;
-animal = employee; // Error: 'Animal' and 'Employee' are not compatible
+animal = empleado; // Error: 'Animal' and 'Empleado' are not compatible
 ```
 
-In this example, we have an `Animal` and a `Rhino`, with `Rhino` being a subclass of `Animal`.
-We also have a new class `Employee` that looks identical to `Animal` in terms of shape.
-We create some instances of these classes and then try to assign them to each other to see what will happen.
-Because `Animal` and `Rhino` share the `private` side of their shape from the same declaration of `private name: string` in `Animal`, they are compatible. However, this is not the case for `Employee`.
-When we try to assign from an `Employee` to `Animal` we get an error that these types are not compatible.
-Even though `Employee` also has a `private` member called `name`, it's not the one we declared in `Animal`.
+En este ejemplo tenemos un `Rhino` que es una subclase de `Animal`.
+También tenemos una nueva clase `Empleado` que tiene la misma forma que `Animal`.
+Creamos varias instancias de estas clases y las asignamos unas a otras.
+Como `Animal` y `Rhino` comparten su forma `private` en la misma declaración (`private nombre: string` en `Animal`), son compatibles.
+Sin embargo, cuando tratamos de asignar `Empleado` a `Animal` obtemos un error de incompatibilidad debido a que `Empleado` también tiene un miembro `private` llamado `nombre`, pero este no es el mismo declarado en `Animal`. Forma parte de una clase diferente.
 
-## Understanding `protected`
+## Entendiendo `protected`
 
-The `protected` modifier acts much like the `private` modifier with the exception that members declared `protected` can also be accessed by instances of deriving classes. For example,
+Los `protected` actúan de manera similar a `private` con la diferencia de que a los miembros declarados con `protected` se puede acceder mediante instancias de las clases derivadas. Por ejemeplo:
 
 ```ts
-class Person {
-    protected name: string;
-    constructor(name: string) { this.name = name; }
+class Persona {
+    protected nombre: string;
+    constructor(nombre: string) { this.nombre = nombre; }
 }
 
-class Employee extends Person {
-    private department: string;
+class Empleado extends Persona {
+    private departamento: string;
 
-    constructor(name: string, department: string) {
-        super(name);
-        this.department = department;
+    constructor(nombre: string, departamento: string) {
+        super(nombre);
+        this.departamento = departamento;
     }
 
+    // Elevator pitch es un discurso rapido enfocado a
+    // vender una idea, producto o a ti mismo en poco tiempo.
+    // Literalmente: Dicurso o charla de ascensor.
     public getElevatorPitch() {
-        return `Hello, my name is ${this.name} and I work in ${this.department}.`;
+        return `Hola, mi nombre es ${this.nombre} y trabajo en ${this.departamento}.`;
     }
 }
 
-let howard = new Employee("Howard", "Sales");
+let howard = new Empleado("Howard", "Sales");
 console.log(howard.getElevatorPitch());
-console.log(howard.name); // error
+console.log(howard.nombre); // error
 ```
 
-Notice that while we can't use `name` from outside of `Person`, we can still use it from within an instance method of `Employee` because `Employee` derives from `Person`.
+Nótese que aunque no podemos usar `nombre` desde fuera de `Persona`, podemos seguir usándolo desde un método de instancia de `Empleado` porque `Empleado` deriva de `Persona`.
 
-## Parameter properties
+## Propiedades de parámetros
 
-In our last example, we had to declare a private member `name` and a constructor parameter `theName`, and we then immediately set `name` to `theName`.
-This turns out to be a very common practice.
-*Parameter properties* let you create and initialize a member in one place.
-Here's a further revision of the previous `Animal` class using a parameter property:
+En el último ejemplo, declaramos un miembro privado `nombre` y un parámetro en el constructor `elNombre`.
+Entonces inmediatamente establecimos el `nombre` al valor recibido de `elNombre`.
+Esta es una práctica común.
+*Propiedades de parámetros* te permite crear e inicializar un miembro en un sólo lugar.
+Esta es una revisicion complementaria a la clase anterior `Animal` usando una propiedad de parámetro:
 
 ```ts
 class Animal {
-    constructor(private name: string) { }
-    move(distanceInMeters: number) {
-        console.log(`${this.name} moved ${distanceInMeters}m.`);
+    constructor(private nombre: string) { }
+    mover(distanciaEnMetros: number) {
+        console.log(`${this.nombre} movió ${distanciaEnMetros}m.`);
     }
 }
 ```
 
-Notice how we dropped `theName` altogether and just use the shortened `private name: string` parameter on the constructor to create and initialize the `name` member.
-We've consolidated the declarations and assignment into one location.
+Fíjese que hemos desechado `elNombre` y usamos el parámetro acortado `private nombre: string` en el constructor que crea e inicializa el miembro `nombre`.
+Hemos fusionado la declaración y la asignación en un mismo lugar.
 
-Parameter properties are declared by prefixing a constructor parameter with an accessibility modifier.
-Using `private` for a parameter property declares and initializes a private member; likewise, the same is done for `public` and `protected`.
+# Descriptores de acceso
 
-# Accessors
+TypeScript soporta getters/setters (obtenedores y asignadores *aunque usaremos sus nombres en inglés*) como una manera para interceptar el acceso a un miembro de un objeto.
+Esto le da un control más preciso sobre cómo se accede a un miembro de cada objeto.
 
-TypeScript supports getters/setters as a way of intercepting accesses to a member of an object.
-This gives you a way of having finer-grained control over how a member is accessed on each object.
-
-Let's convert a simple class to use `get` and `set`.
-First, let's start with an example without getters and setters.
+Convirtamos una clase simple para que use `get` y `set`.
+Primero un ejemplo sin getters ni setters.
 
 ```ts
-class Employee {
-    fullName: string;
+class Empleado {
+    nombreCompleto: string;
 }
 
-let employee = new Employee();
-employee.fullName = "Bob Smith";
-if (employee.fullName) {
-    console.log(employee.fullName);
+let empleado = new Empleado();
+empleado.nombreCompleto = "Bob Smith";
+if (empleado.nombreCompleto) {
+    console.log(empleado.nombreCompleto);
 }
 ```
 
-While allowing people to randomly set `fullName` directly is pretty handy, this might get us in trouble if people can change names on a whim.
+Aunque permitir a la gente cambiar a su antojo `nombreCompleto` es muy práctico, esto nos puede meter en problemas.
 
-In this version, we check to make sure the user has a secret passcode available before we allow them to modify the employee.
-We do this by replacing the direct access to `fullName` with a `set` that will check the passcode.
-We add a corresponding `get` to allow the previous example to continue to work seamlessly.
+En esta versión, comprobamos que el usuario tiene un código de acceso secreto antes de modificar `empleado`.
+Conseguimos esto reemplazando el acceso directo a `nombreCompleto` con un `set` que comprueba el código de acceso.
+Agregamos el correspondiente `get` para permitir que funcione de forma similar al ejemplo anterior.
 
 ```ts
-let passcode = "secret passcode";
+let codigoAcceso = "codigo de acceso secreto";
 
-class Employee {
-    private _fullName: string;
+class Empleado {
+    private _nombreCompleto: string;
 
-    get fullName(): string {
-        return this._fullName;
+    get nombreCompleto(): string {
+        return this._nombreCompleto;
     }
 
-    set fullName(newName: string) {
-        if (passcode && passcode == "secret passcode") {
-            this._fullName = newName;
+    set nombreCompleto(nuevoNombre: string) {
+        if (codigoAcceso && codigoAcceso == "codigo de acceso secreto") {
+            this._nombreCompleto = nuevoNombre;
         }
         else {
-            console.log("Error: Unauthorized update of employee!");
+            console.log("Error: Actualizacion no autorizada de empleado!");
         }
     }
 }
 
-let employee = new Employee();
-employee.fullName = "Bob Smith";
-if (employee.fullName) {
-    console.log(employee.fullName);
+let empleado = new Empleado();
+empleado.nombreCompleto = "Bob Smith";
+if (empleado.nombreCompleto) {
+    console.log(empleado.nombreCompleto);
 }
 ```
 
-To prove to ourselves that our accessor is now checking the passcode, we can modify the passcode and see that when it doesn't match we instead get the message warning us we don't have access to update the employee.
+Para comprobar que nuestros descriptores de acceso funcionan, solamente tenemos que modificar `codigoAcceso` y recibiremos el mensaje de error por consola.
 
-Note: Accessors require you to set the compiler to output ECMAScript 5 or higher.
+**Importante**: Los descriptores de acceso requieren que el compilador devuelva ECMAScript 5 o mayor.
 
-# Static Properties
+# Propiedades estáticas (*static*)
 
-Up to this point, we've only talked about the *instance* members of the class, those that show up on the object when it's instantiated.
-We can also create *static* members of a class, those that are visible on the class itself rather than on the instances.
-In this example, we use `static` on the origin, as it's a general value for all grids.
-Each instance accesses this value through prepending the name of the class.
-Similarly to prepending `this.` in front of instance accesses, here we prepend `Grid.` in front of static accesses.
+Hasta este punto solo hemos hablado de miembros de *instancias* de la clase, esos que se muestran al instanciar un objeto.
+También podemos crear miembros estáticos de la clase, aquellos que son visibles en la propia clase, sin instancias.
+
+En este ejemplo usamos `static` en *origen* porque es un valor general para tadas las cuadrículas.
+Cada instancia accede a este valor anteponiendo el nombre de la clase.
+Es similar a anteponer `this.` en frente del acceso a la instancia.
+En este ejemplo anteponemos `Cuadricula.` en frente del acceso estático.
 
 ```ts
-class Grid {
-    static origin = {x: 0, y: 0};
-    calculateDistanceFromOrigin(point: {x: number; y: number;}) {
-        let xDist = (point.x - Grid.origin.x);
-        let yDist = (point.y - Grid.origin.y);
+class Cuadricula {
+    static origen = {x: 0, y: 0};
+    calcularDistanciaDesdeOrigen(point: {x: number; y: number;}) {
+        let xDist = (point.x - Cuadricula.origen.x);
+        let yDist = (point.y - Cuadricula.origen.y);
         return Math.sqrt(xDist * xDist + yDist * yDist) / this.scale;
     }
     constructor (public scale: number) { }
 }
 
-let grid1 = new Grid(1.0);  // 1x scale
-let grid2 = new Grid(5.0);  // 5x scale
+let grid1 = new Cuadricula(1.0);  // 1x scale
+let grid2 = new Cuadricula(5.0);  // 5x scale
 
-console.log(grid1.calculateDistanceFromOrigin({x: 10, y: 10}));
-console.log(grid2.calculateDistanceFromOrigin({x: 10, y: 10}));
+console.log(grid1.calcularDistanciaDesdeOrigen({x: 10, y: 10}));
+console.log(grid2.calcularDistanciaDesdeOrigen({x: 10, y: 10}));
 ```
 
-# Abstract Classes
+En el ejemplo también usamos un método estático de clase `Math` llamado `sqrt` para calcular la raíz cuadrada de un número.
 
-Abstract classes are base classes from which other classes may be derived.
-They may not be instantiated directly.
-Unlike an interface, an abstract class may contain implementation details for its members.
-The `abstract` keyword is used to define abstract classes as well as abstract methods within an abstract class.
+# Clases abstractas
+
+Las clases abstractas sirven de base para otras clases derivadas, pero no se pueden instanciar directamente.
+Como diferencia con las interfaces las clases abstractas pueden contener detalles sobre la implementación de sus miembros.
+La palabra clave `abstract` es usada para definir tanto la clase abstracta como sus métodos abstractos.
+Veamos un ejemplo sencillo:
 
 ```ts
 abstract class Animal {
     abstract makeSound(): void;
-    move(): void {
+    mover(): void {
         console.log("roaming the earth...");
     }
 }
 ```
 
-Methods within an abstract class that are marked as abstract do not contain an implementation and must be implemented in derived classes.
-Abstract methods share a similar syntax to interface methods.
-Both define the signature of a method without including a method body.
-However, abstract methods must include the `abstract` keyword and may optionally include access modifiers.
+Los métodos dentor de una clase abstracta marcados como abstractos no contienen una implementación y deben ser implementados en la clase derivada.
+Los métodos abstractos muestran una sintaxis similar a los métodos de interfaz.
+Ambos definen la firma de un método sin incluir el cuerpo del método.
+Sin embargo, los métodos abstractos deben incluir la palabra clave `abstract` y, optionalmente, modificadores de acceso.
 
 ```ts
 abstract class Department {
 
-    constructor(public name: string) {
+    constructor(public nombre: string) {
     }
 
     printName(): void {
-        console.log("Department name: " + this.name);
+        console.log("Department nombre: " + this.nombre);
     }
 
     abstract printMeeting(): void; // must be implemented in derived classes
@@ -343,118 +347,118 @@ class AccountingDepartment extends Department {
     }
 }
 
-let department: Department; // ok to create a reference to an abstract type
-department = new Department(); // error: cannot create an instance of an abstract class
-department = new AccountingDepartment(); // ok to create and assign a non-abstract subclass
-department.printName();
-department.printMeeting();
-department.generateReports(); // error: method doesn't exist on declared abstract type
+let departamento: Department; // ok to create a reference to an abstract type
+departamento = new Department(); // error: cannot create an instance of an abstract class
+departamento = new AccountingDepartment(); // ok to create and assign a non-abstract subclass
+departamento.printName();
+departamento.printMeeting();
+departamento.generateReports(); // error: method doesn't exist on declared abstract type
 ```
 
-# Advanced Techniques
+# Técnicas avanzadas
 
-## Constructor functions
+## Funciones constructoras
 
-When you declare a class in TypeScript, you are actually creating multiple declarations at the same time.
-The first is the type of the *instance* of the class.
+Cuando declaras una clase en TypeScript, estás creando múltiples declaraciones al mismo tiempoi.
+La primera es el tipo de *instancia* de la clase.
 
 ```ts
-class Greeter {
-    greeting: string;
+class Bienvenida {
+    saludo: string;
     constructor(message: string) {
-        this.greeting = message;
+        this.saludo = message;
     }
-    greet() {
-        return "Hello, " + this.greeting;
+    saludar() {
+        return "Hello, " + this.saludo;
     }
 }
 
-let greeter: Greeter;
-greeter = new Greeter("world");
-console.log(greeter.greet());
+let bienvenida: Bienvenida;
+bienvenida = new Bienvenida("world");
+console.log(bienvenida.saludar());
 ```
 
-Here, when we say `let greeter: Greeter`, we're using `Greeter` as the type of instances of the class `Greeter`.
-This is almost second nature to programmers from other object-oriented languages.
+Cuando decimos `let bienvenida: Bienvenida`, estamos usando `Bienvenida` como el tipo de instancia de la clase `Bienvenida`.
 
-We're also creating another value that we call the *constructor function*.
-This is the function that is called when we `new` up instances of the class.
-To see what this looks like in practice, let's take a look at the JavaScript created by the above example:
+También estamos creando otro valor que llamamos *funciones constructoras*.
+Esta es la función a la que llamamos cuando hacemos un `new` para crear una nueva instancia de una clase.
+Para verlo en la práctica, echemos un vistazo al JavaScript creado en el ejemplo siguiente:
 
 ```ts
-let Greeter = (function () {
-    function Greeter(message) {
-        this.greeting = message;
+let Bienvenida = (function () {
+    function Bienvenida(message) {
+        this.saludo = message;
     }
-    Greeter.prototype.greet = function () {
-        return "Hello, " + this.greeting;
+    Bienvenida.prototype.saludar = function () {
+        return "Hello, " + this.saludo;
     };
-    return Greeter;
+    return Bienvenida;
 })();
 
-let greeter;
-greeter = new Greeter("world");
-console.log(greeter.greet());
+let bienvenida;
+bienvenida = new Bienvenida("world");
+console.log(bienvenida.saludar());
 ```
 
-Here, `let Greeter` is going to be assigned the constructor function.
-When we call `new` and run this function, we get an instance of the class.
-The constructor function also contains all of the static members of the class.
-Another way to think of each class is that there is an *instance* side and a *static* side.
+Aquí, `let Bienvenida` va a ser asignada a la función constructora.
+Cuando llamamos a `new` y ejecutamos esta función, obtenemos una instancia de la clase.
+La función constructora también contiene todos los miembros estáticos de la clase.
+Otra forma de pensar para cada clase es que existe un lado *instance*  y otro lado *static*.
 
-Let's modify the example a bit to show this difference:
+Modifiquemos un poco el ejemplo para mostrar estas diferencias:
 
 ```ts
-class Greeter {
+class Bienvenida {
     static standardGreeting = "Hello, there";
-    greeting: string;
-    greet() {
-        if (this.greeting) {
-            return "Hello, " + this.greeting;
+    saludo: string;
+    saludar() {
+        if (this.saludo) {
+            return "Hello, " + this.saludo;
         }
         else {
-            return Greeter.standardGreeting;
+            return Bienvenida.standardGreeting;
         }
     }
 }
 
-let greeter1: Greeter;
-greeter1 = new Greeter();
-console.log(greeter1.greet());
+let greeter1: Bienvenida;
+greeter1 = new Bienvenida();
+console.log(greeter1.saludar());
 
-let greeterMaker: typeof Greeter = Greeter;
+let greeterMaker: typeof Bienvenida = Bienvenida;
 greeterMaker.standardGreeting = "Hey there!";
 
-let greeter2: Greeter = new greeterMaker();
-console.log(greeter2.greet());
+let greeter2: Bienvenida = new greeterMaker();
+console.log(greeter2.saludar());
 ```
 
-In this example, `greeter1` works similarly to before.
-We instantiate the `Greeter` class, and use this object.
-This we have seen before.
+En este ejemplo, `greeter1` funciona de manera similar al ejemplo anterior.
+Instanciamos la clase `Bienvenida` y usamos este objeto.
+Esto lo hemos visto antes.
 
-Next, we then use the class directly.
-Here we create a new variable called `greeterMaker`.
-This variable will hold the class itself, or said another way its constructor function.
-Here we use `typeof Greeter`, that is "give me the type of the `Greeter` class itself" rather than the instance type.
-Or, more precisely, "give me the type of the symbol called `Greeter`," which is the type of the constructor function.
-This type will contain all of the static members of Greeter along with the constructor that creates instances of the `Greeter` class.
-We show this by using `new` on `greeterMaker`, creating new instances of `Greeter` and invoking them as before.
+A continuación, usamos la clase directamente.
+Creamos una nueva variable llamada `greeterMaker`.
+Esta variable mantendrá la propia clase en si, o dicho de otra forma es la función constructora.
 
-## Using a class as an interface
+Usamos `typeof Bienvenida`, que quiere decir "dame el tipo de la clase `Bienvenida` en sí mismo" en lugar el tipo instancia.
+O, más precisamente, "dame el tipo del símbolo llamado `Bienvenida`", el que es el tipo de la función constructora.
+Este tipo contendrá todos los miembros estáticos de la clase Bienvenida junto con el constructor que crea la isntancia de la clase `Bienvenida`.
+Mostramos esto usando `new` en `greeterMaker`, creando una nueva instancia de `Bienvenida` e invocándola antes.
 
-As we said in the previous section, a class declaration creates two things: a type representing instances of the class and a constructor function.
-Because classes create types, you can use them in the same places you would be able to use interfaces.
+## Usando una clase como una interfaz
+
+Una declaración de clase crea dos cosas: un tipo que representa la instancia de la clase y una función constructora.
+Dado que las clases crean tipos, pueda usarlos de la misma manera que usas las interfaces.
 
 ```ts
-class Point {
+class Punto {
     x: number;
     y: number;
 }
 
-interface Point3d extends Point {
+interface Punto3d extends Punto {
     z: number;
 }
 
-let point3d: Point3d = {x: 1, y: 2, z: 3};
+let point3d: Punto3d = {x: 1, y: 2, z: 3};
 ```
