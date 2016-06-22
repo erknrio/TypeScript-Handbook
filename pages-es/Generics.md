@@ -273,7 +273,7 @@ copyFields(x, { Q: 90 });  // error: property 'Q' isn't declared in 'x'.
 
 ## Uso de los Tipos de Clase Genéricos
 
-Cuando se crean *¿factories?* en TypeScript usando genéricos, es necesario referirse al tipo de clase por sus funciones constructoras. Por ejemplo:
+Cuando se crean factores (*factories*) en TypeScript usando genéricos, es necesario referirse al tipo de clase por sus funciones constructoras. Por ejemplo:
 
 ```ts
 function create<T>(c: {new(): T; }): T {
