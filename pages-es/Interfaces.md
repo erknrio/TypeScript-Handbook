@@ -122,7 +122,7 @@ Por lógica, no deberíamos pasar a una función más parámetros de los necesar
 let miCuadrado = crearCuadrado({ colour: "red", width: 100 });
 ```
 
-Para evitarlo podemos usar una [type assertion](Basic Types.md).
+Para evitarlo podemos usar una [type assertion](./Basic Types.md).
 
 ```ts
 let miCuadrado = crearCuadrado({ width: 100, opacity: 0.5 } as CuadradoConfig);
