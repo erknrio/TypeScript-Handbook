@@ -1,37 +1,37 @@
-# Enums
+# Enumeraciones (*Enums*)
 
-Enums allow us to define a set of named numeric constants.
-An enum can be defined using the `enum` keyword.
+Los enums nos permiten definir un conjunto de constantes numéricas.
+Una enumeración puede ser definido usando la palabra clave `enum`.
 
 ```ts
 enum Direction {
-    Up = 1,
-    Down,
-    Left,
-    Right
+    Arriba = 1,
+    Abajo,
+    Izquierda,
+    Derecha
 }
 ```
 
-The body of an enum consists of zero or more enum members.
-Enum members have numeric value associated with them and can be either *constant* or *computed*.
-An enum member is considered constant if:
+El cuerpo de un enumeración consiste en cero o más miembros.
+Los miembros de una enumeración tienen valores numéricos asociados a ellos y pueden ser incluso *constante* o *computerizados*.
+Un miembro de la enumeración es considerado constante si:
 
-* It does not have an initializer and the preceding enum member was constant.
-    In this case the value of the current enum member will be the value of the preceding enum member plus one.
-    One exception to this rule is the first element on an enum.
-    If it does not have initializer it is assigned the value `0`.
-* The enum member is initialized with a constant enum expression.
-    A constant enum expression is a subset of TypeScript expressions that can be fully evaluated at compile time.
-    An expression is a constant enum expression if it is either:
-    * numeric literal
-    * reference to previously defined constant enum member (it can be defined in different enum).
-        If member is defined in the same enum it can be referenced using unqualified name.
-    * parenthesized constant enum expression
-    * `+`, `-`, `~` unary operators applied to constant enum expression
-    * `+`, `-`, `*`, `/`, `%`, `<<`, `>>`, `>>>`, `&`, `|`, `^` binary operators with constant enum expressions as operands
-    It is a compile time error for constant enum expressions to be evaluated to `NaN` or `Infinity`.
+* No tiene un inicializador y el miembro de la enumeración que le precede es constante.
+    En este caso, el valor del miemrbo actual de la enumeración será el valor del que le precede más uno.
+    Una excepción a esta regla es el primer elemento de una enumeración.
+    Si no tiene inicializador le es asignado el valor `0`.
+* Un miembro de la enumeración es inicializado con una constante enumerada.
+    Una constante enumerada es un subconjunto de expresiones TypeScript que pueden ser completamente evualadas en tiempo de compilación.
+    Una expresión es una constante enumerada si incluye:
+    * Numérico literal.
+    * Referencia a miembros constantes enumerados previamente definidos (pueden ser definidos en enumeraciones diferentes)
+        Si el miembro es definido en la misma enumeración, puede ser referenciado usando nombres no cualificado.
+    * Expresión constante enumerada entre parentesis.
+    * `+`, `-`, `~` operadores unitarios aplicados a expresiones constantes enumeradas.
+    * `+`, `-`, `*`, `/`, `%`, `<<`, `>>`, `>>>`, `&`, `|`, `^` operadores binarios con expresiones constantes enumeradas como operadores.
+    Es un error en tiempo de compilación para las expresiones constantes enumeradas que son evaluadas como `NaN` o `Infinity`.
 
-In all other cases enum member is considered computed.
+En todos los otros casos los miembros enumerados son considerados computados.
 
 ```ts
 enum FileAccess {
@@ -45,8 +45,8 @@ enum FileAccess {
 }
 ```
 
-Enums are real objects that exist at runtime.
-One reason is the ability to maintain a reverse mapping from enum values to enum names.
+Las enumeraciones son objetos reales que existen en tiempo de ejecución.
+Una razón es la habildiad para mantener un mapeo inverso de los valores de la enumeración a los nombres de la enumeración.
 
 ```ts
 enum Enum {
@@ -56,7 +56,7 @@ let a = Enum.A;
 let nameOfA = Enum[Enum.A]; // "A"
 ```
 
-is compiled to:
+es compilado a:
 
 ```js
 var Enum;
@@ -67,12 +67,12 @@ var a = Enum.A;
 var nameOfA = Enum[Enum.A]; // "A"
 ```
 
-In generated code an enum is compiled into an object that stores both forward (`name` -> `value`) and reverse (`value` -> `name`) mappings.
-References to enum members are always emitted as property accesses and never inlined.
-In lots of cases this is a perfectly valid solution.
-However sometimes requirements are tighter.
-To avoid paying the cost of extra generated code and additional indirection when accessing enum values it is possible to use const enums.
-Const enums are defined using the `const` modifier that precedes the `enum` keyword.
+En el código generado una enumeración es compilada a un objeto que almacena ambos, tanto al derecho (`name` -> `value`) como al revés (`value` -> `name`).
+Las referencias a los miembros enumerados siempre se emiten como acceso de propiedad y no en línea.
+En muchos casos esta es una solución perfectamente válida.
+Sin embargo, algunas veces los requisitos son más estrictos.
+Para evitar pagar el coste extra del código generado y la indirección cuando se accede a los valores enumerados, es posible usar constantes enumeradas.
+Las constantes enumeradas son definidas con el modificador `const` que precede a la palabra clave `enum`.
 
 ```ts
 const enum Enum {
@@ -81,30 +81,30 @@ const enum Enum {
 }
 ```
 
-Const enums can only use constant enum expressions and unlike regular enums they are completely removed during compilation.
-Const enum members are inlined at use sites.
-This is possible since const enums cannot have computed members.
+Las constantes enumeradas solamente pueden usar expresiones constantes enumeradas y en contra de las enumeraciones regulares, son completamentes eliminadas durante la compilación.
+Las miembros constantes enumerados están inclinados a usar sitios de uso.
+Esto es posible desde que las constantes enumeradas no pueden tener miembros computados.
 
 ```ts
 const enum Directions {
-    Up,
-    Down,
-    Left,
-    Right
+    Arriba,
+    Abajo,
+    Izquierda,
+    Derecha
 }
 
-let directions = [Directions.Up, Directions.Down, Directions.Left, Directions.Right]
+let directions = [Directions.Arriba, Directions.Abajo, Directions.Izquierda, Directions.Derecha]
 ```
 
-in generated code will become
+En código generado se convertirá
 
 ```js
-var directions = [0 /* Up */, 1 /* Down */, 2 /* Left */, 3 /* Right */];
+var directions = [0 /* Arriba */, 1 /* Abajo */, 2 /* Izquierda */, 3 /* Derecha */];
 ```
 
-# Ambient enums
+# Enumeraciones ambientales
 
-Ambient enums are used to describe the shape of already existing enum types.
+Las enumeraciones ambientales son usadas para describir la forma de enumraciones existentes.
 
 ```ts
 declare enum Enum {
@@ -114,5 +114,5 @@ declare enum Enum {
 }
 ```
 
-One important difference between ambient and non-ambient enums is that, in regular enums, members that don't have an initializer are considered constant members.
-For non-const ambient enums member that does not have initializer is considered computed.
+Una importante diferencia entre las enumeraciones ambientales y no ambientales es que, en las enumraciones regulares, los miembros que no tienen un inicializador son considerados miembros constantes.
+Para miembros no constantes de enumeraciones ambientales que no tienen inicializador son considerados computerizados.
