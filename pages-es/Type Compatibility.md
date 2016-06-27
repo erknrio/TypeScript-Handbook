@@ -1,69 +1,72 @@
-# Introduction
+# Introducción
 
-Type compatibility in TypeScript is based on structural subtyping.
-Structural typing is a way of relating types based solely on their members.
-This is in contrast with nominal typing.
-Consider the following code:
+La compatibilidad de tipos en TypeScript esta basado en el suptipo estructural.
+La tipificación estructural  es una manera de relacionar los tipos basados solamente en sus miembros.
+Esto está en contraposición a la tipificación nominal
+Considere el siguiente código:
 
 ```ts
 interface Named {
-    name: string;
+    nombre: string;
 }
 
-class Person {
-    name: string;
+class Persona {
+    nombre: string;
 }
 
 let p: Named;
-// OK, because of structural typing
-p = new Person();
+// OK, debido al tipificado estructural
+p = new Persona();
 ```
 
-In nominally-typed languages like C# or Java, the equivalent code would be an error because the `Person` class does not explicitly describe itself as being an implementor of the `Named` interface.
+En lenguajes nominalmente tipados como C# o Java, el código equivalente resultaría en un error porque la clase `Persona`no se describe a si misma como un implementador de la interfaz `Named`.
 
-TypeScript's structural type system was designed based on how JavaScript code is typically written.
-Because JavaScript widely uses anonymous objects like function expressions and object literals, it's much more natural to represent the kinds of relationships found in JavaScript libraries with a structural type system instead of a nominal one.
+La tipificación estructural de TypeScript fue diseñada sobre como es escrito normalmente el código JavaScript.
 
-## A Note on Soundness
+Debido a que JavaScript usa ampliamente objetos anónimos como expresiones de función y objetos literales es más natural representar el tipo de relaciones que se encuentran en las librerías de JavaScript con un sistema de tipo estructural en lugar de uno nominal.
 
-TypeScript's type system allows certain operations that can't be known at compile-time to be safe. When a type system has this property, it is said to not be "sound". The places where TypeScript allows unsound behavior were carefully considered, and throughout this document we'll explain where these happen and the motivating scenarios behind them.
+## Una nota sobre la solidez
 
-# Starting out
+El sistema de tipos de TypeScript permite ciertas operaciones que no pueden ser conocidas durante el tiempo de compilación para ser seguras.
+Cuando un tipo de sistema tiene esta propiedad se dice que no son "sonoros" (*"sound"*).
+Los lugares donde TypeScript permite un compotamiento erróneo fueron considerados cuidadosamente y a lo largo de este documento explicaremos donde ocurre y los ecenarios que los motivaron.
 
-The basic rule for TypeScript's structural type system is that `x` is compatible with `y` if `y` has at least the same members as `x`. For example:
+# Empezando
+
+La regla básica del sistema de tipos estructural para TypeScript es que `x` es compatible con `y` si `y` tiene al menos los mismos elementos que `x`. Por ejemplo:
 
 ```ts
 interface Named {
-    name: string;
+    nombre: string;
 }
 
 let x: Named;
-// y's inferred type is { name: string; location: string; }
-let y = { name: "Alice", location: "Seattle" };
+// y's inferred type is { nombre: string; localizacion: string; }
+let y = { nombre: "Alice", localizacion: "Seattle" };
 x = y;
 ```
 
-To check whether `y` can be assigned to `x`, the compiler checks each property of `x` to find a corresponding compatible property in `y`.
-In this case, `y` must have a member called `name` that is a string. It does, so the assignment is allowed.
+Para comprobar que `y` puede ser asignado a `x`, el compilador comprueba cada propiedad de `x` para encontrar una propiedad compatible `y`.
+En este caso, `y` debe tener un elemento llamado `nombre` que sea una cadena. Si lo tiene, la asignacioń es permitida.
 
-The same rule for assignment is used when checking function call arguments:
+La misma regla de asignación es usada para comprobar los parámetro de llamada a una función:
 
 ```ts
 function greet(n: Named) {
-    alert("Hello, " + n.name);
+    alert("Hello, " + n.nombre);
 }
 greet(y); // OK
 ```
 
-Note that `y` has an extra `location` property, but this does not create an error.
-Only members of the target type (`Named` in this case) are considered when checking for compatibility.
+Fíjese que  `y` tiene una propiedad extra `localizacion`, pero ésta no genera un error.
+Solamente elemento del tipo objetivo (`Named` en este caso) son considerados cuando se comprueba la compatibilidad.
 
-This comparison process proceeds recursively, exploring the type of each member and sub-member.
+Este proceso de comparación se produce recursivamente, explorando el tipo de cada elemento y sub-elemento.
 
-# Comparing two functions
+# Comparando dos funciones
 
-While comparing primitive types and object types is relatively straightforward, the question of what kinds of functions should be considered compatible is a bit more involved.
-Let's start with a basic example of two functions that differ only in their parameter lists:
+Mientras que comparar tipos primitivos y tipos de objetos es relativamente directo, la cuestión de que tipo de funciones deberían considerar compatibles es un poco más complicado.
+Empecemos con un ejemplo básico de dos funciones que difieren solamente en la lista de parámetros:
 
 ```ts
 let x = (a: number) => 0;
@@ -73,45 +76,44 @@ y = x; // OK
 x = y; // Error
 ```
 
-To check if `x` is assignable to `y`, we first look at the parameter list.
-Each parameter in `x` must have a corresponding parameter in `y` with a compatible type.
-Note that the names of the parameters are not considered, only their types.
-In this case, every parameter of `x` has a corresponding compatible parameter in `y`, so the assignment is allowed.
+Para comprobar si `x` es asinable a `y`, primero buscamos en la lista de parámetros.
+Cada parámettro en `x` debe tener un parámetro correspondiente en `y` con un tipo compatible.
+En este caso se cumple.
 
-The second assignment is an error, because y has a required second parameter that 'x' does not have, so the assignment is disallowed.
+El segundo asignamiento es un error porque `y` tiene un segundo parámetro que `x` no tiene, entonces no está permitido.
 
-You may be wondering why we allow 'discarding' parameters like in the example `y = x`.
-The reason for this assignment to be allowed is that ignoring extra function parameters is actually quite common in JavaScript.
-For example, `Array#forEach` provides three parameters to the callback function: the array element, its index, and the containing array.
-Nevertheless, it's very useful to provide a callback that only uses the first parameter:
+Debes estar sorprendido de porque permitimos 'descarta' parámetros como en el ejemplo `y = x`.
+La razón es que ignorar parámetros extra de en la función es algo común actualmente en JavaScript.
+Por ejemplo, `Array#forEach` provee tres parámetro a la función de retorno: el array de elementos, sus índice y el contenido del array.
+Sin embargo, es muy común proporcionar una función de retorno  que solamente use el primer parámetro:
 
 ```ts
-let items = [1, 2, 3];
+let elementos = [1, 2, 3];
 
-// Don't force these extra parameters
-items.forEach((item, index, array) => console.log(item));
+// No fuerce estos parametros extra
+elementos.forEach((elemento, index, array) => console.log(elemento));
 
-// Should be OK!
-items.forEach(item => console.log(item));
+// Deberia estar OK!
+elementos.forEach(elemento => console.log(elemento));
 ```
 
-Now let's look at how return types are treated, using two functions that differ only by their return type:
+Ahora veamos como los tipos devueltos son tratado usando dos funciones que solamente difieren por su valor devuelto:
 
 ```ts
-let x = () => ({name: "Alice"});
-let y = () => ({name: "Alice", location: "Seattle"});
+let x = () => ({nombre: "Alice"});
+let y = () => ({nombre: "Alice", localizacion: "Seattle"});
 
 x = y; // OK
-y = x; // Error because x() lacks a location property
+y = x; // Error porque x() carece de la propiedad localizacion
 ```
 
-The type system enforces that the source function's return type be a subtype of the target type's return type.
+El sistema de tipos fuerza a que el valor devuelto de la función fuente sea un subtipo del valor devuelto del destino.
 
 ## Function Parameter Bivariance
 
-When comparing the types of function parameters, assignment succeeds if either the source parameter is assignable to the target parameter, or vice versa.
-This is unsound because a caller might end up being given a function that takes a more specialized type, but invokes the function with a less specialized type.
-In practice, this sort of error is rare, and allowing this enables many common JavaScript patterns. A brief example:
+Cuando se está comparando los tipos de función de los parámetros, los asignamientos tienen éxito si incluso el parámetro de fuente es asignable al target parámetro, o al revés.  
+Esto es unsonund pq un llamador debe terminar siendo dado una función que tenga un tipo más especializado,pero invoca la función con un tipo menos especializado.
+En la práctica,  este tipo de error es raro y permitiendo esto deshabilita muchos patterns comunes de Javascript. Un buen ejemplo
 
 ```ts
 enum EventType { Mouse, Keyboard }
@@ -135,16 +137,16 @@ listenEvent(EventType.Mouse, <(e: Event) => void>((e: MouseEvent) => console.log
 listenEvent(EventType.Mouse, (e: number) => console.log(e));
 ```
 
-## Optional Parameters and Rest Parameters
+## Parámetros opcionles y rest
 
-When comparing functions for compatibility, optional and required parameters are interchangeable.
-Extra optional parameters of the source type are not an error, and optional parameters of the target type without corresponding parameters in the target type are not an error.
+Cuando comparamos funciones por compatibilidad, los parámetros opcionales y requeridos son intercambiables.
+Los parámetros opcionales extra del tipo fuente no son un error y los parámetros opcionales del tipo destino sin parámetros correspondientes en el tipo destino no son un error.
 
-When a function has a rest parameter, it is treated as if it were an infinite series of optional parameters.
+Cuando una función tiene un parámetro rest, es tratada como si fuera una serie infinita de parámetros opcionales.
 
-This is unsound from a type system perspective, but from a runtime point of view the idea of an optional parameter is generally not well-enforced since passing `undefined` in that position is equivalent for most functions.
+Esto es poco sólido desde una perspectiva del sistema de tipos, pero desde un punto de vista de tiempo de ejecución la idea de un parámetro opcional generalmente no está bien aplicada, ya que pasando `undefined` en esa posición es equivalente para la mayoría de las funciones.
 
-The motivating example is the common pattern of a function that takes a callback and invokes it with some predictable (to the programmer) but unknown (to the type system) number of arguments:
+El ejemplo motivador es el patrón común de una función que toma una devolución de llamada y la invoca con un número de parámetros un poco predecible (al programador) pero desconocido (para el sistema de tipos):
 
 ```ts
 function invokeLater(args: any[], callback: (...args: any[]) => void) {
@@ -158,33 +160,34 @@ invokeLater([1, 2], (x, y) => console.log(x + ", " + y));
 invokeLater([1, 2], (x?, y?) => console.log(x + ", " + y));
 ```
 
-## Functions with overloads
+## Sobrecarga de funciones
 
-When a function has overloads, each overload in the source type must be matched by a compatible signature on the target type.
-This ensures that the target function can be called in all the same situations as the source function.
+Cuando una función tiene sobrecargas, cada sobrecarga en el tipo de origen debe concordar con una firma compatible en el tipo de destino.
+Esto asegura que la función de destino puede ser llamada en todas las mismas situaciones que la función de origen.
 
-# Enums
+# Enumeraciones
 
-Enums are compatible with numbers, and numbers are compatible with enums. Enum values from different enum types are considered incompatible. For example,
+Las enumeraciones son compatibles con números y los números son compatibles con enumeraciones.
+Los valores enumerados de diferentes tipos se consideran incompatibles. Por ejemplo:
 
 ```ts
-enum Status { Ready, Waiting };
-enum Color { Red, Blue, Green };
+enum Estado { Preparado, Esperando };
+enum Color { Rojo, Azul, Verde };
 
-let status = Status.Ready;
-status = Color.Green;  //error
+let estado = Estado.Preparado;
+estado = Color.Verde;  //error
 ```
 
-# Classes
+# Clases
 
-Classes work similarly to object literal types and interfaces with one exception: they have both a static and an instance type.
-When comparing two objects of a class type, only members of the instance are compared.
-Static members and constructors do not affect compatibility.
+Las clases funcionan similarmente a tipos de objetos literales e interfaces con una excepción: ambos tienen tipos estáticos y de instancia.
+Cuando comparamos dos objetos del tipo clase, solamente se comparan los miembros de la instancia.
+Miembros estáticos y constructores no afectan a la compatibilidad.
 
 ```ts
 class Animal {
     feet: number;
-    constructor(name: string, numFeet: number) { }
+    constructor(nombre: string, numFeet: number) { }
 }
 
 class Size {
@@ -199,16 +202,16 @@ a = s;  //OK
 s = a;  //OK
 ```
 
-## Private and protected members in classes
+## Miembros privados y protegidos en las clases
 
-Private and protected members in a class affect their compatibility.
-When an instance of a class is checked for compatibility, if the instance contains a private member, then the target type must also contain a private member that originated from the same class.
-Likewise, the same applies for an instance with a protected member.
-This allows a class to be assignment compatible with its super class, but *not* with classes from a different inheritance hierarchy which otherwise have the same shape.
+Los miembros privados y protegidos en una clases afectan su compatibilidad.
+Cuando una instancia de una clase es comprobada por compatibilidad, si la instancia contiene un miembro privado, entonces el tipo destino debe contener también un mimebro privado originado desde la misma clase.
+Lo mismo se aplica a instancias con miembros protegidos.
+Esto permite que una clase sea compatible con la asignación de su super clase, pero *no* con clases de diferente herencia que tengan la misma forma.
 
-# Generics
+# Genéricos
 
-Because TypeScript is a structural type system, type parameters only affect the resulting type when consumed as part of the type of a member. For example,
+Debido a que TypeScript es una sistema de tipificación estructural, los tipos de parámetros solo afectan el tipo resultante cuando se consuman como parte del tipo d eun miembro. Por ejemplo,
 
 ```ts
 interface Empty<T> {
@@ -219,8 +222,8 @@ let y: Empty<string>;
 x = y;  // okay, y matches structure of x
 ```
 
-In the above, `x` and `y` are compatible because their structures do not use the type argument in a differentiating way.
-Changing this example by adding a member to `Empty<T>` shows how this works:
+En el ejemplo anterior, `x` e `y` son comaptibles porque sus estructuras no usan el argumento de tipo de una forma diferenciadora.
+Veamos como funciona este ejemplo al añadir un miembro a `Empty<T>`:
 
 ```ts
 interface NotEmpty<T> {
@@ -229,15 +232,15 @@ interface NotEmpty<T> {
 let x: NotEmpty<number>;
 let y: NotEmpty<string>;
 
-x = y;  // error, x and y are not compatible
+x = y;  // error, x e y no son compatibles
 ```
 
-In this way, a generic type that has its type arguments specified acts just like a non-generic type.
+De esta manera, un tipo genérico que tiene sus tipos de argumentos actúa como un tipo no genérico.
 
-For generic types that do not have their type arguments specified, compatibility is checked by specifying `any` in place of all unspecified type arguments.
-The resulting types are then checked for compatibility, just as in the non-generic case.
+Para tipos genéricos que no tienen sus tipos de argumentos especificados, la compatibilidad es comprobada al especificar `any` en lugar de todos los tipos de argumentos no especificados.
+Los tipos resultantes se comprueban por compatibilidad, al igual que en el caso no genérico.
 
-For example,
+Por ejemplo:
 
 ```ts
 let identity = function<T>(x: T): T {
@@ -251,14 +254,14 @@ let reverse = function<U>(y: U): U {
 identity = reverse;  // Okay because (x: any)=>any matches (y: any)=>any
 ```
 
-# Advanced Topics
+# Temas avanzados
 
-## Subtype vs Assignment
+## Subtipo vs Asignación
 
-So far, we've used 'compatible', which is not a term defined in the language spec.
-In TypeScript, there are two kinds of compatibility: subtype and assignment.
-These differ only in that assignment extends subtype compatibility with rules to allow assignment to and from `any` and to and from enum with corresponding numeric values.
+Hasta ahora, hemos utilizado "compatible", que no es un término definido en la especificación del lenguaje.
+En TypeScript, hay dos tipos de compatibilidad: el subtipo y la asignación.
+Estos sólo se diferencian en que la asignación extiende la compatibilidad del subtipo con reglas para permitir la asignación desde y hacia `any` y desde una enumeración con los valores numéricos correspondientes.
 
-Different places in the language use one of the two compatibility mechanisms, depending on the situation.
-For practical purposes, type compatibility is dictated by assignment compatibility even in the cases of the `implements` and `extends` clauses.
-For more information, see the [TypeScript spec](https://github.com/Microsoft/TypeScript/blob/master/doc/spec.md).
+Diferentes lugares en la lengua utilizan uno de los dos mecanismos de compatibilidad, dependiendo de la situación.
+A efectos prácticos, la compatibilidad tipo está dictada por la asignación de la compatibilidad incluso en los casos de las claúsulas `implements` y `extends`.
+Para más información, consulte [TypeScript spec](https://github.com/Microsoft/TypeScript/blob/master/doc/spec.md).
