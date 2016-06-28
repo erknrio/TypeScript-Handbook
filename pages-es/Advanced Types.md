@@ -1,15 +1,15 @@
-# Union Types
+# Tipos de Unión
 
-Occasionally, you'll run into a library that expects a parameter to be either a `number` or a `string`.
-For instance, take the following function:
+Ocasionalmente, se encontrará con una librería que espera un parámetro de tipo `number` o `string`.
+Por ejemplo, tomemos la siguiente función:
 
 ```ts
 /**
- * Takes a string and adds "padding" to the left.
- * If 'padding' is a string, then 'padding' is appended to the left side.
- * If 'padding' is a number, then that number of spaces is added to the left side.
+ * Tomamo una cadena y agregamos "padding" a la izquierda.
+ * Si 'padding' es un string, entonces 'padding' es agregado al lado izquierdo.
+ * Si 'padding' es un number, entonces ese numero de espacios es agregado al lado izquierdo.
  */
-function padLeft(value: string, padding: any) {
+function padIzquierda(value: string, padding: any) {
     if (typeof padding === "number") {
         return Array(padding + 1).join(" ") + value;
     }
@@ -19,165 +19,164 @@ function padLeft(value: string, padding: any) {
     throw new Error(`Expected string or number, got '${padding}'.`);
 }
 
-padLeft("Hello world", 4); // returns "    Hello world"
+padIzquierda("Hello world", 4); // returns "    Hello world"
 ```
 
-The problem with `padLeft` is that its `padding` parameter is typed as `any`.
-That means that we can call it with an argument that's neither a `number` nor a `string`, but TypeScript will be okay with it.
+El problema con `padIzquierda` es que su parámetro `padding` está tipado como `any`.
+Esto quiere decir que podemos llamarlo con un argumento que no sea `number` ni `string`.
 
 ```ts
-let indentedString = padLeft("Hello world", true); // passes at compile time, fails at runtime.
+let indentedString = padIzquierda("Hello world", true); // pasa en tiempo de compilacion pero falla en tiempo de ejecucion.
 ```
 
-In traditional object-oriented code, we might abstract over the two types by creating a hierarchy of types.
-While this is much more explicit, it's also a little bit overkill.
-One of the nice things about the original version of `padLeft` was that we were able to just pass in primitives.
-That meant that usage was simple and not overly verbose.
-This new approach also wouldn't help if we were just trying to use a function that already exists elsewhere.
+En el código tradicional orientado a objetos, podríamos resumir los dos tipos mediante la creación de una jerarquía de tipos.
+Mientras que esto es mucho más explícito, también es un poco exagerado.
+Una de las cosas buenas de la versión original de `padIzquierda` era que nos permitía pasar tipos primitivos de uso fácil.
+Este nuevo enfoque no sería de ayuda si sólo estuviesemos tratando de usar una función que existiese en otro lado.
 
-Instead of `any`, we can use a *union type* for the `padding` parameter:
+En lugar de `any`, podemos usar un tipo de union (*union type*) para el parámetro `padding`:
 
 ```ts
 /**
- * Takes a string and adds "padding" to the left.
- * If 'padding' is a string, then 'padding' is appended to the left side.
- * If 'padding' is a number, then that number of spaces is added to the left side.
+ * Tomamos una cadena y agregamos "padding" a la izquierda.
+ * Si 'padding' es un string, entonces agregamos 'padding' al lado izquierdo.
+ * Si 'padding' es un number, entonces ese numero de espacios son agregados al lado izquierdo.
  */
-function padLeft(value: string, padding: string | number) {
+function padIzquierda(value: string, padding: string | number) {
     // ...
 }
 
-let indentedString = padLeft("Hello world", true); // errors during compilation
+let indentedString = padIzquierda("Hello world", true); // errors durante la compilacion
 ```
 
-A union type describes a value that can be one of several types.
-We use the vertical bar (`|`) to separate each type, so `number | string | boolean` is the type of a value that can be a `number`, a `string`, or a `boolean`.
+Un tipo unión describe un valor que puede ser uno de mucho tipos.
+Usamos la barra vertical (`|`) para separar cada tipo, así que si `number | string | boolean` es el tipo de un valor, este puede ser `number`, `string` o `boolean`.
 
-If we have a value that has a union type, we can only access members that are common to all types in the union.
+Si tenemos un valor que es un tipo unión, sólo podemos acceder a los miembros que son comunes a todos los tipos de la union.
 
 ```ts
-interface Bird {
-    fly();
-    layEggs();
+interface Pajaro {
+    volar();
+    poneHuevos();
 }
 
-interface Fish {
-    swim();
-    layEggs();
+interface Pez {
+    nadar();
+    poneHuevos();
 }
 
-function getSmallPet(): Fish | Bird {
+function getSmallPet(): Pez | Pajaro {
     // ...
 }
 
-let pet = getSmallPet();
-pet.layEggs(); // okay
-pet.swim();    // errors
+let mascota = getSmallPet();
+mascota.poneHuevos(); // okay
+mascota.nadar();    // errores
 ```
 
-Union types can be a bit tricky here, but it just takes a bit of intuition to get used to.
-If a value has the type `A | B`, we only know for *certain* that it has members that both `A` *and* `B` have.
-In this example, `Bird` has a member named `fly`.
-We can't be sure whether a variable typed as `Bird | Fish` has a `fly` method.
-If the variable is really a `Fish` at runtime, then calling `pet.fly()` will fail.
+Los tipos de unión pueden ser un poco problemáticos aquí pero sólo se necesita un poco de intuición para acostumbrarse.
+Si un tipo tiene `A | B`, solamente conocemos con *certeza* que tiene miembros en ambos `A` *y* `B`.
+En este ejemplo `Pajaro` tiene un miembro llamado `volar`.
+No podemos estar seguros de si una variable de tipo `Pajaro | Pez` tiene un método `volar`.
+Si la variable es realmente un `Pez` en tiempo de ejecución, llamando a `mascota.volar()` fallará.
 
-# Type Guards and Differentiating Types
+# Los Guardas de Tipo y la Diferenciación de Tipos
+
+Los tipos de unión son útiles para modelar situaciones cuando los valores se pueden solapar en los tipos que pueden tomar.
 
 Union types are useful for modeling situations when values can overlap in the types they can take on.
-What happens when we need to know specifically whether we have a `Fish`?
-A common idiom in JavaScript to differentiate between two possible values is to check for the presence of a member.
-As we mentioned, you can only access members that are guaranteed to be in all the constituents of a union type.
+¿Qué ocurre cuando necesitamos saber concretamente si tenemos un `Pez`?
+Un idioma común en JavaScript para diferenciar entre dos posibles valores es comprobar la presencia de un miembro.
+Como mencionamos, solamente puedes acceder a miembros que garantizan estar en todas los componentes de la unión.
 
 ```ts
-let pet = getSmallPet();
+let mascota = getSmallPet();
 
-// Each of these property accesses will cause an error
-if (pet.swim) {
-    pet.swim();
+// Cada uno de los accesos a las propiedades provocara un error
+if (mascota.nadar) {
+    mascota.nadar();
 }
-else if (pet.fly) {
-    pet.fly();
+else if (mascota.volar) {
+    mascota.volar();
 }
 ```
-
-To get the same code working, we'll need to use a type assertion:
+Para conseguir que funcione el mismo código, necesitamos un type assertion:
 
 ```ts
-let pet = getSmallPet();
+let mascota = getSmallPet();
 
-if ((<Fish>pet).swim) {
-    (<Fish>pet).swim();
+if ((<Pez>mascota).nadar) {
+    (<Pez>mascota).nadar();
 }
 else {
-    (<Bird>pet).fly();
+    (<Pajaro>mascota).volar();
 }
 ```
 
-## User-Defined Type Guards
+## Guardas de Tipo Definidos por el Usuario
 
-Notice that we had to use type assertions several times.
-It would be much better if once we performed the check, we could know the type of `pet` within each branch.
+Fíjese que tiene que usar type assertions muchas veces.
+Sería mucho mejor si una vez realizada la comprobación pudiesemos saber el tipo de `mascota` dentro de cada rama.
 
-It just so happens that TypeScript has something called a *type guard*.
-A type guard is some expression that performs a runtime check that guarantees the type in some scope.
-To define a type guard, we simply need to define a function whose return type is a *type predicate*:
+Lo que ocurre es que TypeScript tiene algo llamado protectores de tipos (*type guard*).
+Un protector de tipos es una expresión que tiene lugar durante el tiempo de ejecución y garantiza el tipo en un ámbito (*scope*)
+Para deifinir un protector de tipo, simplemente definimos una función cuyo tipo devuelto es un tipo predicado (*type predicate*):
 
 ```ts
-function isFish(pet: Fish | Bird): pet is Fish {
-    return (<Fish>pet).swim !== undefined;
+function esPez(mascota: Pez | Pajaro): mascota is Pez {
+    return (<Pez>mascota).nadar !== undefined;
 }
 ```
 
-`pet is Fish` is our type predicate in this example.
-A predicate takes the form `parameterName is Type`, where `parameterName` must be the name of a parameter from the current function signature.
+`mascota is Pez` es nuestro tipo predicado en este ejemplo.
+Un predicado toma la forma `nombreParametro is Tipo`, donde `nombreParametro` debe ser el nombre del parámetro de la firma de la función actual.
 
-Any time `isFish` is called with some variable, TypeScript will *narrow* that variable to that specific type if the original type is compatible.
+Cada vez que `esPez` es llamado con alguna variable, TypeScript *acotará* esa variable a un tipo específico si el tipo original es compatible.
 
 ```ts
-// Both calls to 'swim' and 'fly' are now okay.
+// Ambas llamadas a 'nadar' y 'volar' ahora son correctas.
 
-if (isFish(pet)) {
-    pet.swim();
+if (esPez(mascota)) {
+    mascota.nadar();
 }
 else {
-    pet.fly();
+    mascota.volar();
 }
 ```
 
-Notice that TypeScript not only knows that `pet` is a `Fish` in the `if` branch;
-it also knows that in the `else` branch, you *don't* have a `Fish`, so you must have a `Bird`.
+Note que TypeScript no solo sabe que `mascota` es un `Pez` en el `if` sino que también sabe que en el `else`, *no* tienes un `Pez`, debes tener un `Pajaro`.
 
-## `typeof` type guards
+## `typeof` de los protectores de tipo
 
-We didn't actually discuss the implementation of the version of `padLeft` which used union types.
-We could write it with type predicates as follows:
+No discutimos la implementación de la versión de `padIzquierda` que usaba tipos de unión.
+Podemos escribirla con predicados de la siguiente manera:
 
 ```ts
-function isNumber(x: any): x is number {
+function esNumero(x: any): x is number {
     return typeof x === "number";
 }
 
-function isString(x: any): x is string {
+function esCadena(x: any): x is string {
     return typeof x === "string";
 }
 
-function padLeft(value: string, padding: string | number) {
-    if (isNumber(padding)) {
+function padIzquierda(value: string, padding: string | number) {
+    if (esNumero(padding)) {
         return Array(padding + 1).join(" ") + value;
     }
-    if (isString(padding)) {
+    if (esCadena(padding)) {
         return padding + value;
     }
     throw new Error(`Expected string or number, got '${padding}'.`);
 }
 ```
 
-However, having to define a function to figure out if a type is a primitive is kind of a pain.
-Luckily, you don't need to abstract `typeof x === "number"` into its own function because TypeScript will recognize it as a type guard on its own.
-That means we could just write these checks inline.
+Sin embargo, tener que definir una función para averiguar si un tipo es primitivo es un dolor.
+Por fortuna, no tenemos que abstraer `typeof x === "number"` en su propia función porque TypeScript lo reconocerá como un protector de tipo.
+Eso quiero decir que podríamos escribir estas comprobaciones en la misma línea.
 
 ```ts
-function padLeft(value: string, padding: string | number) {
+function padIzquierda(value: string, padding: string | number) {
     if (typeof padding === "number") {
         return Array(padding + 1).join(" ") + value;
     }
@@ -188,15 +187,15 @@ function padLeft(value: string, padding: string | number) {
 }
 ```
 
-These *`typeof` type guards* are recognized in two different forms: `typeof v === "typename"` and `typeof v !== "typename"`, where `"typename"` must be `"number"`, `"string"`, `"boolean"`, or `"symbol"`.
-While TypeScript won't prohibit comparing to other strings, or switching the two sides of the comparison, the language won't recognize those forms as type guards.
+Este *`typeof` protectores de tipo* son reconocidos de dos formas diferentes: `typeof v === "nombretipo"` y `typeof v !== "nombretipo"`, donde `"nombretipo"` debe ser `"number"`, `"string"`, `"boolean"`, o `"symbol"`.
+Mientras TypeScript no prohibirá la comparación con otras cadenas o cambiar los dos lados de la comparación, el lenguaje no reconocerá estas formas como protectores de tipo.
 
-## `instanceof` type guards
+## `instanceof` protectores de tipo
 
-If you've read about `typeof` type guards and are familiar with the `instanceof` operator in JavaScript, you probably have some idea of what this section is about.
+Si ha leído sobre `typeof` protectores de tipo y esta familiarizado con el operador `instanceof` en JavaScript, probablemente tiene una idea sobre de que va esta sección.
 
-*`instanceof` type guards* are a way of narrowing types using their constructor function.
-For instance, let's borrow our industrial string-padder example from earlier:
+*`instanceof` protectores de tipo* son una forma de reducción de tipos usando su función constructora.
+Por ejemplo, vamos a tomar prestado nuestro ejemplo de *string-padder* industrial de antes:
 
 ```ts
 interface Padder {
@@ -234,20 +233,20 @@ if (padder instanceof StringPadder) {
 }
 ```
 
-The right side of the `instanceof` needs to be a constructor function, and TypeScript will narrow down to:
+El lugar correcto de `instanceof` necesita ser la función constructora y TypeScript los reducirá a:
 
-1. the type of the function's `prototype` property if its type is not `any`
-2. the union of types returned by that type's construct signatures
+1. El tipo de propiedad `prototype` de la funciónsi su tipo no es `any`.
+2. Los tipos de unión devueltos por las firmas de los tipos del constructor.
 
-in that order.
+En ese orden.
 
-# Intersection Types
+# Tipos de intersección
 
-Intersection types are closely related to union types, but they are used very differently.
-An intersection type, `Person & Serializable & Loggable`, for example, is a `Person` *and* `Serializable` *and* `Loggable`.
-That means an object of this type will have all members of all three types.
-In practice you will mostly see intersection types used for mixins.
-Here's a simple mixin example:
+Los tipos de intersección están estrechamente relacionados con los tipos de unión, pero son usados de manera muy diferente.
+Un tipo de intersección `Persona & Serializable & Loggable`, por ejemplo, es una `Persona` *y* `Serializable` *y* `Loggable`.
+Esto quiere decir que un objeto te este tipo tendrá todos los miembros de los tres tipos.
+En la práctica mayoritariamente sólo verá el tipo intersección usado para mixins.
+Este es un ejemplo simple de mixin:
 
 ```ts
 function extend<T, U>(first: T, second: U): T & U {
@@ -263,7 +262,7 @@ function extend<T, U>(first: T, second: U): T & U {
     return result;
 }
 
-class Person {
+class Persona {
     constructor(public name: string) { }
 }
 interface Loggable {
@@ -274,15 +273,15 @@ class ConsoleLogger implements Loggable {
         // ...
     }
 }
-var jim = extend(new Person("Jim"), new ConsoleLogger());
+var jim = extend(new Persona("Jim"), new ConsoleLogger());
 var n = jim.name;
 jim.log();
 ```
 
-# Type Aliases
+# Tipo alias
 
-Type aliases create a new name for a type.
-Type aliases are sometimes similar to interfaces, but can name primitives, unions, tuples, and any other types that you'd otherwise have to write by hand.
+Los tipos alias crea un nuevo nombre para un tipo.
+Algunas veces son similares a las interfaces pero pueden nombrar tipos primitivos, uniones, tuplas y otros tipos que de lo contrario tendría que escribir a mano.
 
 ```ts
 type Name = string;
@@ -298,61 +297,63 @@ function getName(n: NameOrResolver): Name {
 }
 ```
 
-Aliasing doesn't actually create a new type - it creates a new *name* to refer to that type.
-Aliasing a primitive is not terribly useful, though it can be used as a form of documentation.
+Los alias no crean un nuevo tipo, crean un nuevo *nombre* que referencia a ese tipo.
+Los alias de tipos primitivos no son muy útiles, aunque pueden ser usados como documentación.
 
-Just like interfaces, type aliases can also be generic - we can just add type parameters and use them on the right side of the alias declaration:
+Como las interfaces, los alias pueden ser genéricos, podems agregar el tipo de parámetros y usarlos en el lado correcto de la declaración del alias:
 
 ```ts
 type Container<T> = { value: T };
 ```
 
-We can also have a type alias refer to itself in a property:
+También podemos tener un alias refiriendose a sí mismo en una propiedad:
 
 ```ts
-type Tree<T> = {
+type Arbol<T> = {
     value: T;
-    left: Tree<T>;
-    right: Tree<T>;
+    left: Arbol<T>;
+    right: Arbol<T>;
 }
 ```
 
-Together with intersection types, we can make some pretty mind-bending types:
+Junto con los tipos de intersección, podemos hacer algunos tipos alucinantemente bonitos:
 
 ```ts
 type LinkedList<T> = T & { next: LinkedList<T> };
 
-interface Person {
+interface Persona {
     name: string;
 }
 
-var people: LinkedList<Person>;
+var people: LinkedList<Persona>;
 var s = people.name;
 var s = people.next.name;
 var s = people.next.next.name;
 var s = people.next.next.next.name;
 ```
 
-However, it's not possible for a type alias to appear anywhere else on the right side of the declaration:
+Sin embargo, no es posible para el tipo alias aparecer en cualquier lugar en el lado derecho de la declaración:
 
 ```ts
 type Yikes = Array<Yikes>; // error
 ```
 
-## Interfaces vs. Type Aliases
+## Tipo Alias vs Interfaces
 
-As we mentioned, type aliases can act sort of like interfaces; however, there are some subtle differences.
+Como mencionamos, los alias pueden actuar como interfaces.
+Sin embargo, hay algunas sutiles diferencias.
 
-One important difference is that type aliases cannot be extended or implemented from (nor can they extend/implement other types).
-Because [an ideal property of software is being open to extension](https://en.wikipedia.org/wiki/Open/closed_principle), you should always use an interface over a type alias if possible.
+Una diferencia importante es que el tipo alias no puede ser extendido o implementado (tampoco puede extender o implementar de otros tipos).
+Porque [una propiedad ideal del software es ser abierto a la extensión](https://en.wikipedia.org/wiki/Open/closed_principle).
+Debería usar siempre una interfaz en lugar de un alias si es posible.
 
-On the other hand, if you can't express some shape with an interface and you need to use a union or tuple type, type aliases are usually the way to go.
+Por otro lado, si no puede expresar una forma con una interfaz y necesita una unión o tupla, el tipo alias es lo usado normalmente.
 
-# String Literal Types
+# Tipos de Cadena Literales
 
-String literal types allow you to specify the exact value a string must have.
-In practice string literal types combine nicely with union types, type guards, and type aliases.
-You can use these features together to get enum-like behavior with strings.
+Los tipos de cadena literales le permiten especificar el valor exacto que una cadena debe tener.
+En la práctica una cadena literal combina muy bien con los tipos de union, protectores y alias.
+Puede usar estas características en conjunto para obtener con cadenas un comportamiento similar a las enumeraciones.
 
 ```ts
 type Easing = "ease-in" | "ease-out" | "ease-in-out";
@@ -376,13 +377,13 @@ button.animate(0, 0, "ease-in");
 button.animate(0, 0, "uneasy"); // error: "uneasy" is not allowed here
 ```
 
-You can pass any of the three allowed strings, but any other string will give the error
+Puede pasar cualquiera de las tres cadenas permitidas, pero cualquier otra cadena dará un error.
 
 ```text
-Argument of type '"uneasy"' is not assignable to parameter of type '"ease-in" | "ease-out" | "ease-in-out"'
+Argumento del tipo '"uneasy"' no es assignable al parametro de tipo '"ease-in" | "ease-out" | "ease-in-out"'
 ```
 
-String literal types can be used in the same way to distinguish overloads:
+Los tipos de cadena literales pueden ser usados de la misma manera para distinguir sobrecargas:
 
 ```ts
 function createElement(tagName: "img"): HTMLImageElement;
@@ -393,12 +394,13 @@ function createElement(tagName: string): Element {
 }
 ```
 
-# Polymorphic `this` types
+# Tipos `this` polimórficos
 
-A polymorphic `this` type represents a type that is the *subtype* of the containing class or interface.
-This is called *F*-bounded polymorphism.
-This makes hierarchical fluent interfaces much easier to express, for example.
-Take a simple calculator that returns `this` after each operation:
+Un tipo `this` polimórfico representa a un tipo que es un *subtipp* de la clase o interfaz contenedora.
+Esto es llamado como polimorfirsmo delimitado-*F*.
+
+Esto hace las jerarquías de interfaces más fluidas y fáciles de expresar, por ejemplo.
+Cogamos una calculadora simple que retorne `this` después de cada operación:
 
 ```ts
 class BasicCalculator {
@@ -423,7 +425,7 @@ let v = new BasicCalculator(2)
             .currentValue();
 ```
 
-Since the class uses `this` types, you can extend it and the new class can use the old methods with no changes.
+Puesto que la clase usa los tipos `this`, puede extenderlo y la nueva clase puede usar los viejos métodos sin cambios.
 
 ```ts
 class ScientificCalculator extends BasicCalculator {
@@ -444,6 +446,6 @@ let v = new ScientificCalculator(2)
         .currentValue();
 ```
 
-Without `this` types, `ScientificCalculator` would not have been able to extend `BasicCalculator` and keep the fluent interface.
-`multiply` would have returned `BasicCalculator`, which doesn't have the `sin` method.
-However, with `this` types, `multiply` returns `this`, which is `ScientificCalculator` here.
+Sin el tipo `this`, `ScientificCalculator` no le sería posible extender `BasicCalculator` y mantener el flujo de la interfaz.
+`multiply` habría retornado `BasicCalculator`, el que no tine el método `sin`.
+Sin embargo, con los tipos `this`, `multiply` devuelve `this`, el cual es `ScientificCalculator` en este caso.
