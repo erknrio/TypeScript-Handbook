@@ -1,8 +1,8 @@
-# Introduction
+# Introducción
 
-Starting with ECMAScript 2015, `symbol` is a primitive data type, just like `number` and `string`.
+Empezando con ECMAScript 2015, `symbol` es un tipo de dato primitivo, como `number` y `string`.
 
-`symbol` values are created by calling the `Symbol` constructor.
+Los valores `symbol` son creados llamando al constructor de `Symbol`.
 
 ```ts
 let sym1 = Symbol();
@@ -10,16 +10,16 @@ let sym1 = Symbol();
 let sym2 = Symbol("key"); // optional string key
 ```
 
-Symbols are immutable, and unique.
+Los símbolos son inmutables y únicos.
 
 ```ts
 let sym2 = Symbol("key");
 let sym3 = Symbol("key");
 
-sym2 === sym3; // false, symbols are unique
+sym2 === sym3; // false, symbols son unicos
 ```
 
-Just like strings, symbols can be used as keys for object properties.
+Como las cadenas, los símbolos pueden ser usados como las claves de las propiedades de los objetos.
 
 ```ts
 let sym = Symbol();
@@ -31,7 +31,7 @@ let obj = {
 console.log(obj[sym]); // "value"
 ```
 
-Symbols can also be combined with computed property declarations to declare object properties and class members.
+Los símbolos también pueden ser combinados con las declaraciones de propiedad computada para declarar propiedades y miembros de clase.
 
 ```ts
 const getClassNameSymbol = Symbol();
@@ -46,56 +46,60 @@ let c = new C();
 let className = c[getClassNameSymbol](); // "C"
 ```
 
-# Well-known Symbols
+# Símbolos Conocidos
 
-In addition to user-defined symbols, there are well-known built-in symbols.
-Built-in symbols are used to represent internal language behaviors.
-
-Here is a list of well-known symbols:
+Además de los símbolos definidos por el usuario, hay símbolos conocidos preconstruidos.
+Los símbolos preconstruidos son usados para representar comportamientos internos del lenguaje.
+Aquí tiene una lista de símbolos conocidos que podrá encontrar en su mayoría en la documentación de [MDN](https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Symbol#Símbolos_bien_conocidos):
 
 ## `Symbol.hasInstance`
 
-A method that determines if a constructor object recognizes an object as one of the constructor’s instances. Called by the semantics of the instanceof operator.
+Un método que determina si un objeto constructor reconoce un objeto como una de las instancias del constructor.
+Llamado por la semántica del operador instanceof.
 
 ## `Symbol.isConcatSpreadable`
 
-A Boolean value indicating that an object should be flatten to its array elements by Array.prototype.concat.
+Un valor Boolean indicando que un objeto se debe reducir a sus elementos de array por Array.prototype.concat.
 
 ## `Symbol.iterator`
 
-A method that returns the default iterator for an object. Called by the semantics of the for-of statement.
+Un método que retorna el iterador por defecto de un objeto.
+Llamado por la semántica de la declaración for-of.
 
 ## `Symbol.match`
 
-A regular expression method that matches the regular expression against a string. Called by the `String.prototype.match` method.
+Un método de expresión regular que concuerda la expresión regular con una cadena.
+Llamado por el método `String.prototype.match`.
 
 ## `Symbol.replace`
 
-A regular expression method that replaces matched substrings of a string. Called by the `String.prototype.replace` method.
+Un método de expresión regular que concuerda con una subcadena de una cadena.
+Llamado por `String.prototype.replace`.
 
 ## `Symbol.search`
 
-A regular expression method that returns the index within a string that matches the regular expression. Called by the `String.prototype.search` method.
+Un método de expresión regular que devuelve el índice dentro de una cadena que concuerda con la expresión regular.
+Llamado por `String.prototype.search`.
 
 ## `Symbol.species`
 
-A function valued property that is the constructor function that is used to create derived objects.
+Una valiosa propiedad de función que es la función constructora y es usada para crear opbjetos derivados.
 
 ## `Symbol.split`
 
-A regular expression method that splits a string at the indices that match the regular expression.
-Called by the `String.prototype.split` method.
+Un método de expresión regular que divide una cadena a los índices que concerdan con la expresión regular.
+Llamado por el método `String.prototype.split`.
 
 ## `Symbol.toPrimitive`
 
-A method that converts an object to a corresponding primitive value.
-Called by the `ToPrimitive` abstract operation.
+Un método que convierte un objeto en su correspondiente valor primitivo.
+Llamado bor el operador abstracto `ToPrimitive`.
 
 ## `Symbol.toStringTag`
 
-A String value that is used in the creation of the default string description of an object.
-Called by the built-in method `Object.prototype.toString`.
+Una valor de cadena que es usada en la creación de una descripción en una cadena de un objeto.
+Llamado por el método predefinidio `Object.prototype.toString`.
 
 ## `Symbol.unscopables`
 
-An Object whose own property names are property names that are excluded from the 'with' environment bindings of the associated objects.
+Un objeto cuyas propias propiedades son excluídas de las ataduras del entorno del objeto asociado (*from the ‘with’ environment bindings of the associated objects*).
