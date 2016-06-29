@@ -1,13 +1,13 @@
 # Iterables
 
-An object is deemed iterable if it has an implementation for the [`Symbol.iterator`](Symbols.md#symboliterator) property.
-Some built-in types like `Array`, `Map`, `Set`, `String`, `Int32Array`, `Uint32Array`, etc. have their `Symbol.iterator` property already implemented.
-`Symbol.iterator` function on an object is responsible for returning the list of values to iterate on.
+Un objeto es considerado iretable si tiene una implemntación de la propiedad [`Symbol.iterator`](Symbols.md#symboliterator).
+Algunos tipos preconstruidos como `Array`, `Map`, `Set`, `String`, `Int32Array`, `Uint32Array`, etc. tienen su propia proeidad ya implementada de  `Symbol.iterator`.
+La función `Symbol.iterator` en un objeto es responsable de devolver la lista de valores a iterar.
 
-## `for..of` statements
+## Declaración `for..of`
 
-`for..of` loops over an iterable object, invoking the `Symbol.iterator` property on the object.
-Here is a simple `for..of` loop on an array:
+El bucle `for..of` sobre un objeto iterable invoca la propiedad `Symbol.iterator` en el objeto.
+Aquí hay un bucle sencillo de `for..of` en un array:
 
 ```ts
 let someArray = [1, "string", false];
@@ -17,11 +17,12 @@ for (let entry of someArray) {
 }
 ```
 
-### `for..of` vs. `for..in` statements
+### Declaraciones `for..of` vs. `for..in`
 
-Both `for..of` and `for..in` statements iterate over lists; the values iterated on are different though, `for..in` returns a list of *keys* on the object being iterated, whereas `for..of` returns a list of *values* of the numeric properties of the object being iterated.
+Ambos, `for..of` y `for..in` iteran sobre listas, pero los valores iterados son diferentes.
+Mientras que `for..in` devuelve una lista de claves (*keys*) del objeto iterado, `for..of` devuelve una lista de valores (*values*) de las propiedades numéricas del objeto iterado.
 
-Here is an example that demonstrates this distinction:
+Un ejemplo que demuestra esta distinción:
 
 ```ts
 let list = [4, 5, 6];
@@ -35,8 +36,8 @@ for (let i of list) {
 }
 ```
 
-Another distinction is that `for..in` operates on any object; it serves as a way to inspect properties on this object.
-`for..of` on the other hand, is mainly interested in values of iterable objects. Built-in objects like `Map` and `Set` implement `Symbol.iterator` property allowing access to stored values.
+Otra distinción es que mientras `for..in` opera sobre cualquier objeto y sirve como una forma de inspeccionar las propiedades de un objeto, `for..of` está mayoritariamente interesado en los valores de los objetos iterables.
+Objetos preconstruidos como `Map` y `Set` implementan la propiedad `Symbol.iterator` permitiendo acceso a los valores almacenados.
 
 ```ts
 let pets = new Set(["Cat", "Dog", "Hamster"]);
@@ -51,14 +52,14 @@ for (let pet of pets) {
 }
 ```
 
-### Code generation
+### Generación de Código
 
-#### Targeting ES5 and ES3
+#### Objetivos ES5 y ES3
 
-When targeting an ES5 or ES3, iterators are only allowed on values of `Array` type.
-It is an error to use `for..of` loops on non-Array values, even if these non-Array values implement the `Symbol.iterator` property.
+Si nos enfocamos en ES5 o ES3, solamente están permitidos los iteradores en los valores del tipo `Array`.
+Es un error usar bucles `for..of` en valores que no sean arrays, incluso si esos no arrays implementan la propiedad `Symbol.iterator`.
 
-The compiler will generate a simple `for` loop for a `for..of` loop, for instance:
+El compilador generará un simple bucle `for` para un bucle `for..of`, por ejemplo:
 
 ```ts
 let numbers = [1, 2, 3];
@@ -67,7 +68,7 @@ for (let num of numbers) {
 }
 ```
 
-will be generated as:
+se generará como:
 
 ```js
 var numbers = [1, 2, 3];
@@ -77,6 +78,6 @@ for (var _i = 0; _i < numbers.length; _i++) {
 }
 ```
 
-#### Targeting ECMAScript 2015 and higher
+#### Orientándonos a ECMAScript 2015 y mayor
 
-When targeting an ECMAScipt 2015-compliant engine, the compiler will generate `for..of` loops to target the built-in iterator implementation in the engine.
+Cuando nos orientamos al motoro de compilación de ECMAScipt 2015, el compilador generará bucles `for..of` para orientar la implementación de iterador preconstruidos en el motor.
