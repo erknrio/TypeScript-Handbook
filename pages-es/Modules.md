@@ -1,28 +1,32 @@
-> **A note about terminology:**
-It's important to note that in TypeScript 1.5, the nomenclature has changed.
-"Internal modules" are now "namespaces".
-"External modules" are now simply "modules", as to align with [ECMAScript 2015](http://www.ecma-international.org/ecma-262/6.0/)'s terminology, (namely that `module X {` is equivalent to the now-preferred `namespace X {`).
+> **Una anotación sobre la terminología:**
+Es importante darse cuenta que en TypeScript 1.5, la nomenglatura ha cambiado.
+"Internal modules" son ahora "espacios de nombre" (*"namespaces"*).
+"External modules" son ahora simplemente "módulos" (*"modules"*), para estar en consonancia con le terminología del [ECMAScript 2015](http://www.ecma-international.org/ecma-262/6.0/).
+(El `module X {` es equivalente al ahora preferido `namespace X {`).
 
-# Introduction
+# Introducción
 
-Starting with the ECMAScript 2015, JavaScript has a concept of modules. TypeScript shares this concept.
+Empezando con el ECMAScript 2015, JavaScript tiene un concepto de módulos. TypeScript comparte este concepto.
 
-Modules are executed within their own scope, not in the global scope; this means that variables, functions, classes, etc. declared in a module are not visible outside the module unless they are explicitly exported using one of the [`export` forms](#export).
+Los módulos son ejecutados dentro de su propio ámbito, no en el global.
+Esto quiere decir que las variables, funciones, clases, etc. declaradas en el módulo no son visibles fuera de este a menos que exportados explícitamente por uno de las [formas `export`](#export).
+
 Conversely, to consume a variable, function, class, interface, etc. exported from a different module, it has to be imported using one of the [`import` forms](#import).
 
-Modules are declarative; the relationships between modules are specified in terms of imports and exports at the file level.
+Los módulos son declarativos, la relación entre módules es especificada en términos de importaciones y exportaciones a nivel de fichero.
 
-Modules import one another using a module loader.
-At runtime the module loader is responsible for locating and executing all dependencies of a module before executing it.
-Well-known modules loaders used in JavaScript are the [CommonJS](https://en.wikipedia.org/wiki/CommonJS) module loader for Node.js and [require.js](http://requirejs.org/) for Web applications.
+Los módulos importan unos de otros usando un cargador de módulos.
+En tiempo de ejecución el cargador de módulos es responsable de localizar y ejecutar todas las dependencias de un módulo antes de ejecutarlo.
 
-In TypeScript, just as in ECMAScript 2015, any file containing a top-level `import` or `export` is considered a module.
+Algunos cargadores de módules muy usados en JavaScript son [CommonJS](https://en.wikipedia.org/wiki/CommonJS) para Node.js y [require.js](http://requirejs.org/) para aplicaciones web.
 
-# Export
+En TypeScript, como en ECMAScript 2015, cualquier fichero que contenga un *top-level* `import` o `export` es considerador un módulo.
 
-## Exporting a declaration
+# Exportar
 
-Any declaration (such as a variable, function, class, type alias, or interface) can be exported by adding the `export` keyword.
+## Exportando una declaración
+
+Cualquier declaración (variable, function, class, tipo alias, o interfaz) puede ser exportada añadiendo la palabra clave `export`.
 
 ##### Validation.ts
 
@@ -44,9 +48,9 @@ export class ZipCodeValidator implements StringValidator {
 }
 ```
 
-## Export statements
+## Exportar sentencias
 
-Export statements are handy when exports need to be renamed for consumers, so the above example can be written as:
+Exportar sentencias es práctico cuando la exportación necesita ser renombrada para los consumidores, el ejemplo anterior puede ser escrito como:
 
 ```ts
 class ZipCodeValidator implements StringValidator {
@@ -58,10 +62,10 @@ export { ZipCodeValidator };
 export { ZipCodeValidator as mainValidator };
 ```
 
-## Re-exports
+## Re-exportación
 
-Often modules extend other modules, and partially expose some of their features.
-A re-export does not import it locally, or introduce a local variable.
+A veces los módulos extienden otros módulos y exponen parcialmente sus características.
+Una re-exportación no importa de forma local o introduce variables locales.
 
 ##### ParseIntBasedZipCodeValidator.ts
 
@@ -76,7 +80,7 @@ export class ParseIntBasedZipCodeValidator {
 export {ZipCodeValidator as RegExpBasedZipCodeValidator} from "./ZipCodeValidator";
 ```
 
-Optionally, a module can wrap one or more modules and combine all their exports using `export * from "module"` syntax.
+Opcionalmente un módulo puede envolver uno o más módulos y combinarlos todos usando la sintaxis `export * from "module"`.
 
 ##### AllValidators.ts
 
