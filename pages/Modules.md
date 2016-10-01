@@ -88,7 +88,7 @@ export * from "./ZipCodeValidator";  // exports class 'ZipCodeValidator'
 
 # Import
 
-Importing is just about as easy as exporting from an module.
+Importing is just about as easy as exporting from a module.
 Importing an exported declaration is done through using one of the `import` forms below:
 
 ## Import a single export from a module
@@ -431,11 +431,11 @@ if (needZipValidation) {
 ```ts
 declare function require(moduleNames: string[], onLoad: (...args: any[]) => void): void;
 
-import { ZipCodeValidator as Zip } from "./ZipCodeValidator";
+import  * as Zip from "./ZipCodeValidator";
 
 if (needZipValidation) {
     require(["./ZipCodeValidator"], (ZipCodeValidator: typeof Zip) => {
-        let validator = new ZipCodeValidator();
+        let validator = new ZipCodeValidator.ZipCodeValidator();
         if (validator.isAcceptable("...")) { /* ... */ }
     });
 }

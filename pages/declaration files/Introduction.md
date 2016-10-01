@@ -18,7 +18,7 @@ Authors of new declaration files must read this section to properly understand h
 
 Many common mistakes in declaration files can be easily avoided.
 The [Do's and Don'ts](./Do's and Don'ts.md) section identifies common errors,
-  desscribes how to detect them,
+  describes how to detect them,
   and how to fix them.
 Everyone should read this section to help themselves avoid common mistakes.
 
@@ -34,9 +34,9 @@ For seasoned authors interested in the underlying mechanics of how declaration f
   the [Deep Dive](./Deep Dive.md) section explains many advanced concepts in declaration writing,
   and shows how to leverage these concepts to create cleaner and more intuitive declaration files.
 
-## `/templates`
+## Templates
 
-In the [`templates`](https://github.com/Microsoft/TypeScript-Handbook/tree/master/pages/declaration%20files/templates) directory, you'll find a number of declaration files that serve as a useful starting point
+In [Templates](./Templates.md) you'll find a number of declaration files that serve as a useful starting point
   when writing a new file.
 Refer to the documentation in [Library Structures](./Library Structures.md) to figure out which template file to use.
 
